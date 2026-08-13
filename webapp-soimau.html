@@ -1,87 +1,497 @@
-function doGet(e) {
-  return ContentService.createTextOutput("Hệ thống nhận dữ liệu giám sát nguồn sáng đang hoạt động!");
-}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1F4E79" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Giám sát nguồn sáng | Hòa Thọ P.LAB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1F4E79',
+            accent: '#E67E22',
+            success: '#27AE60',
+            danger: '#C0392B',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .safe-bottom { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+    .pulse-ring { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 0.3; }
+      100% { transform: scale(0.8); opacity: 0.6; }
+    }
+    .timer-digit { font-variant-numeric: tabular-nums; }
+    .nav-item.active { color: #1F4E79; }
+    .nav-item.active svg { stroke: #1F4E79; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
 
-function doPost(e) {
-  try {
-    // 1. Lấy dữ liệu từ Web App gửi lên
-    var data = JSON.parse(e.postData.contents);
-    
-    var light = data.light; // "TL83" hoặc "D65"
-    var date = data.date;
-    var start = data.start;
-    var end = data.end;
-    var minutes = Number(data.minutes) || 0;
-    var user = data.user || "";
-    var note = data.note || "";
-    
-    // 2. Mở Sheet tương ứng
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(light);
-    
-    if (!sheet) {
-      return ContentService.createTextOutput("Lỗi: Không tìm thấy Sheet " + light).setMimeType(ContentService.MimeType.TEXT);
+  <!-- Header -->
+  <header class="bg-primary text-white sticky top-0 z-40 shadow-lg">
+    <div class="max-w-lg mx-auto px-4 py-3 text-center">
+      <div class="text-xs opacity-80 font-medium tracking-wide">TỔNG CÔNG TY CỔ PHẦN DỆT MAY HÒA THỌ</div>
+      <div class="text-lg font-bold leading-tight">P.LAB · Giám sát nguồn sáng</div>
+    </div>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 py-5 safe-bottom">
+
+    <!-- ===== TAB: THEO DÕI (mặc định) ===== -->
+    <section id="tabTracking">
+      <!-- Step 1: Chọn đèn -->
+      <div id="stepSelect" class="space-y-4">
+        <div class="text-center mb-5">
+          <h1 class="text-xl font-bold text-primary">Chọn nguồn sáng</h1>
+          <p class="text-sm text-slate-500 mt-1">Chọn đèn → Bắt đầu giám sát</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <button onclick="selectLight('TL83')" class="group relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
+            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div class="font-bold text-lg">TL83</div>
+            <div class="text-xs text-slate-500 mt-1">Warm White</div>
+            <div id="remainTL83" class="text-[11px] font-semibold mt-2 text-amber-600">-- phút còn</div>
+            <div id="warnTL83" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
+              HẾT TUỔI THỌ<br>Cần thay bóng
+            </div>
+          </button>
+
+          <button onclick="selectLight('D65')" class="group relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
+            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sky-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div class="font-bold text-lg">D65</div>
+            <div class="text-xs text-slate-500 mt-1">Daylight</div>
+            <div id="remainD65" class="text-[11px] font-semibold mt-2 text-sky-600">-- phút còn</div>
+            <div id="warnD65" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
+              HẾT TUỔI THỌ<br>Cần thay bóng
+            </div>
+          </button>
+        </div>
+
+        <div class="mt-6 bg-white rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Hôm nay</div>
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div>
+              <div id="statTL83" class="text-2xl font-bold text-amber-600">0</div>
+              <div class="text-xs text-slate-500">phút TL83</div>
+            </div>
+            <div>
+              <div id="statD65" class="text-2xl font-bold text-sky-600">0</div>
+              <div class="text-xs text-slate-500">phút D65</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Tracking -->
+      <div id="stepTracking" class="hidden space-y-5">
+        <div class="flex items-center justify-between">
+          <button onclick="backToSelect()" class="flex items-center gap-1 text-sm text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Đổi đèn
+          </button>
+          <div id="lightBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700">TL83</div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-lg p-6 text-center relative">
+          <div id="statusIndicator" class="absolute top-4 right-4 w-3 h-3 rounded-full bg-slate-300"></div>
+          <div id="statusText" class="text-sm font-medium text-slate-500 mb-2">Sẵn sàng bắt đầu</div>
+          <div id="timerDisplay" class="timer-digit text-5xl font-bold text-primary my-4">00:00:00</div>
+          <div id="startTimeInfo" class="text-xs text-slate-400 hidden">
+            Bắt đầu lúc: <span id="startTimeLabel" class="font-medium text-slate-600"></span>
+          </div>
+          <div id="remainInfo" class="mt-3 text-sm font-medium text-slate-600"></div>
+        </div>
+
+        <button id="btnStart" onclick="startSession()" class="w-full py-5 rounded-2xl bg-success text-white font-bold text-lg shadow-lg shadow-green-200 active:scale-[0.98] transition flex items-center justify-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          BẮT ĐẦU MỞ ĐÈN
+        </button>
+
+        <button id="btnStop" onclick="stopSession()" class="w-full py-5 rounded-2xl bg-danger text-white font-bold text-lg shadow-lg shadow-red-200 active:scale-[0.98] transition flex items-center justify-center gap-3 hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+          TẮT ĐÈN & LƯU
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== TAB: HOME (Lịch sử + Cài đặt) ===== -->
+    <section id="tabHome" class="hidden space-y-4">
+      <div class="text-center mb-2">
+        <h1 class="text-xl font-bold text-primary">Trang chủ</h1>
+        <p class="text-sm text-slate-500">Lịch sử & Cài đặt hệ thống</p>
+      </div>
+
+      <!-- Menu cards -->
+      <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
+        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="flex-1 text-left">
+          <div class="font-semibold text-slate-800">Lịch sử hôm nay</div>
+          <div class="text-xs text-slate-500">Xem & xuất dữ liệu đã ghi</div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <button onclick="openAdmin()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <div class="flex-1 text-left">
+          <div class="font-semibold text-slate-800">Cài đặt Admin</div>
+          <div class="text-xs text-slate-500">Tuổi thọ bóng · Reset sau thay bóng</div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <!-- Quick remain info -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm mt-2">
+        <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-amber-700">TL83</span>
+            <span id="homeRemainTL83" class="text-sm font-semibold">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-sky-700">D65</span>
+            <span id="homeRemainD65" class="text-sm font-semibold">--</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-lg mx-auto grid grid-cols-2">
+      <button id="navTracking" onclick="switchTab('tracking')" class="nav-item active flex flex-col items-center py-2.5 text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        <span class="text-[11px] font-medium mt-0.5">Giám sát</span>
+      </button>
+      <button id="navHome" onclick="switchTab('home')" class="nav-item flex flex-col items-center py-2.5 text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span class="text-[11px] font-medium mt-0.5">Home</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- History Panel -->
+  <section id="historyPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] overflow-hidden flex flex-col">
+      <div class="px-5 py-4 border-b flex items-center justify-between">
+        <h2 class="font-bold text-lg">Lịch sử hôm nay</h2>
+        <button onclick="closeHistory()" class="p-2 rounded-full hover:bg-slate-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="historyList" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+      <div class="p-4 border-t bg-slate-50 space-y-2">
+        <button onclick="exportCSV()" class="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm">Xuất CSV</button>
+        <button onclick="clearToday()" class="w-full py-2 text-sm text-slate-500">Xóa dữ liệu hôm nay</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Panel -->
+  <section id="adminPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div class="px-5 py-4 border-b flex items-center justify-between">
+        <h2 class="font-bold text-lg text-primary">⚙ Cài đặt Admin</h2>
+        <button onclick="closeAdmin()" class="p-2 rounded-full hover:bg-slate-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="adminLogin" class="p-6 space-y-4">
+        <p class="text-sm text-slate-500 text-center">Nhập mật khẩu Admin</p>
+        <input id="adminPass" type="password" placeholder="Mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary text-center text-lg tracking-widest" />
+        <button onclick="checkAdminPass()" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">Đăng nhập</button>
+        <p class="text-xs text-center text-slate-400">Mật khẩu mặc định: <strong>hoatho2026</strong></p>
+      </div>
+
+      <div id="adminContent" class="hidden flex-1 overflow-y-auto p-5 space-y-5">
+        <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+          <div class="font-bold text-amber-800 mb-3">TL83 · Warm White</div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-slate-500">Tuổi thọ quy định (phút)</label>
+              <input id="lifeTL83" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+            </div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Đã dùng:</span><span id="usedTL83" class="font-semibold">0</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Còn lại:</span><span id="leftTL83" class="font-semibold text-amber-700">0</span></div>
+            <button onclick="resetBulb('TL83')" class="w-full py-2.5 rounded-xl bg-amber-600 text-white text-sm font-semibold">🔄 Đã thay bóng mới → Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-sky-50 rounded-2xl p-4 border border-sky-100">
+          <div class="font-bold text-sky-800 mb-3">D65 · Daylight</div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-slate-500">Tuổi thọ quy định (phút)</label>
+              <input id="lifeD65" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+            </div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Đã dùng:</span><span id="usedD65" class="font-semibold">0</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Còn lại:</span><span id="leftD65" class="font-semibold text-sky-700">0</span></div>
+            <button onclick="resetBulb('D65')" class="w-full py-2.5 rounded-xl bg-sky-600 text-white text-sm font-semibold">🔄 Đã thay bóng mới → Reset</button>
+          </div>
+        </div>
+
+        <button onclick="saveLifespan()" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">💾 Lưu tuổi thọ</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-[70] max-w-[90%] text-center"></div>
+
+  <script>
+    const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
+    const ADMIN_PASS = 'hoatho2026';
+
+    let currentLight = null;
+    let sessionStart = null;
+    let timerInterval = null;
+    let sessions = JSON.parse(localStorage.getItem('lightSessions') || '[]');
+    let config = JSON.parse(localStorage.getItem('lightConfig') || JSON.stringify({
+      life: { ...DEFAULT_LIFE },
+      used: { TL83: 0, D65: 0 }
+    }));
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('opacity-0');
+      setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
-    
-    // Lấy giới hạn tuổi thọ
-    var maxLife = (light === "TL83") ? 120000 : 12000;
-    
-    // 3. TÌM CHÍNH XÁC DÒNG TIÊU ĐỀ "STT"
-    var columnA = sheet.getRange("A:A").getValues();
-    var headerRow = 0;
-    var lastActualRow = 0;
-    
-    // Quét từ trên xuống để tìm dòng có chứa chữ "STT"
-    for (var i = 0; i < columnA.length; i++) {
-      var val = String(columnA[i][0]).trim().toUpperCase();
-      if (val === "STT") {
-        headerRow = i + 1; // Vì index mảng bắt đầu từ 0, số dòng bắt đầu từ 1
-        break;
-      }
+    function formatTime(d) { return d.toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }); }
+    function formatDuration(ms) {
+      const s = Math.floor(ms/1000);
+      return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60].map(n => n.toString().padStart(2,'0')).join(':');
     }
-    
-    // Nếu không tìm thấy chữ STT, báo lỗi
-    if (headerRow === 0) {
-      return ContentService.createTextOutput("Lỗi: Không tìm thấy chữ STT ở cột A trong Sheet " + light).setMimeType(ContentService.MimeType.TEXT);
+    function minutesOf(ms) { return Math.max(1, Math.round(ms/60000)); }
+    function remaining(l) { return Math.max(0, (config.life[l]||0) - (config.used[l]||0)); }
+    function isExpired(l) { return remaining(l) <= 0; }
+    function saveConfig() { localStorage.setItem('lightConfig', JSON.stringify(config)); }
+
+    // ===== TAB SWITCH =====
+    function switchTab(tab) {
+      document.getElementById('tabTracking').classList.toggle('hidden', tab !== 'tracking');
+      document.getElementById('tabHome').classList.toggle('hidden', tab !== 'home');
+      document.getElementById('navTracking').classList.toggle('active', tab === 'tracking');
+      document.getElementById('navTracking').classList.toggle('text-primary', tab === 'tracking');
+      document.getElementById('navTracking').classList.toggle('text-slate-400', tab !== 'tracking');
+      document.getElementById('navHome').classList.toggle('active', tab === 'home');
+      document.getElementById('navHome').classList.toggle('text-primary', tab === 'home');
+      document.getElementById('navHome').classList.toggle('text-slate-400', tab !== 'home');
+      if (tab === 'home') updateHomeRemain();
     }
-    
-    // Tìm dòng cuối cùng có dữ liệu số (dưới dòng STT)
-    for (var j = columnA.length - 1; j >= headerRow; j--) {
-      if (columnA[j][0] !== "" && !isNaN(columnA[j][0])) {
-        lastActualRow = j + 1;
-        break;
-      }
+
+    function updateRemainDisplay() {
+      ['TL83','D65'].forEach(l => {
+        const rem = remaining(l);
+        const el = document.getElementById('remain'+l);
+        const warn = document.getElementById('warn'+l);
+        if (rem <= 0) {
+          el.textContent = 'HẾT TUỔI THỌ';
+          el.className = 'text-[11px] font-bold mt-2 text-red-600';
+          warn.classList.remove('hidden');
+        } else {
+          el.textContent = rem.toLocaleString('vi-VN') + ' phút còn';
+          el.className = 'text-[11px] font-semibold mt-2 ' + (l==='TL83'?'text-amber-600':'text-sky-600');
+          warn.classList.add('hidden');
+        }
+      });
     }
-    
-    var stt = 1;
-    var prevTotal = 0;
-    
-    // Nếu bảng đã có dữ liệu trước đó
-    if (lastActualRow > 0) {
-      stt = Number(sheet.getRange(lastActualRow, 1).getValue()) + 1; 
-      prevTotal = Number(sheet.getRange(lastActualRow, 7).getValue()) || 0; 
-    } 
-    // Nếu bảng chưa có dữ liệu (chỉ mới có tiêu đề STT)
-    else {
-       lastActualRow = headerRow; 
+    function updateHomeRemain() {
+      document.getElementById('homeRemainTL83').textContent = remaining('TL83').toLocaleString('vi-VN') + ' phút';
+      document.getElementById('homeRemainD65').textContent = remaining('D65').toLocaleString('vi-VN') + ' phút';
     }
-    
-    // 4. Tính toán số liệu mới
-    var newTotal = prevTotal + minutes;
-    var newRemain = maxLife - newTotal;
-    
-    // 5. Ghi dữ liệu vào DÒNG TIẾP THEO (ngay dưới dòng cuối cùng)
-    var targetRow = lastActualRow + 1; 
-    
-    var rowData = [
-      [stt, date, light, start, end, minutes, newTotal, newRemain, user, note]
-    ];
-    
-    // Sử dụng setValues để ghi chính xác vào 10 cột của dòng mục tiêu
-    sheet.getRange(targetRow, 1, 1, 10).setValues(rowData);
-    
-    return ContentService.createTextOutput("Success").setMimeType(ContentService.MimeType.TEXT);
-  } catch (error) {
-    return ContentService.createTextOutput("Lỗi: " + error.toString()).setMimeType(ContentService.MimeType.TEXT);
-  }
-}
+    function updateTodayStats() {
+      const today = new Date().toLocaleDateString('vi-VN');
+      const t = sessions.filter(s => s.date === today);
+      document.getElementById('statTL83').textContent = t.filter(s=>s.light==='TL83').reduce((a,b)=>a+b.minutes,0);
+      document.getElementById('statD65').textContent = t.filter(s=>s.light==='D65').reduce((a,b)=>a+b.minutes,0);
+    }
+
+    function selectLight(light) {
+      if (isExpired(light)) { showToast('Đèn '+light+' đã hết tuổi thọ. Liên hệ Admin.'); return; }
+      currentLight = light;
+      document.getElementById('stepSelect').classList.add('hidden');
+      document.getElementById('stepTracking').classList.remove('hidden');
+      const badge = document.getElementById('lightBadge');
+      if (light==='TL83') { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700'; badge.textContent='TL83 · Warm White'; }
+      else { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-sky-100 text-sky-700'; badge.textContent='D65 · Daylight'; }
+      document.getElementById('remainInfo').textContent = 'Còn lại: ' + remaining(light).toLocaleString('vi-VN') + ' phút';
+      resetTrackingUI();
+    }
+    function backToSelect() {
+      if (sessionStart && !confirm('Đang giám sát. Thoát sẽ mất phiên này?')) return;
+      stopTimer(); currentLight=null;
+      document.getElementById('stepTracking').classList.add('hidden');
+      document.getElementById('stepSelect').classList.remove('hidden');
+      updateRemainDisplay(); updateTodayStats();
+    }
+    function resetTrackingUI() {
+      sessionStart=null;
+      document.getElementById('statusText').textContent='Sẵn sàng bắt đầu';
+      document.getElementById('statusIndicator').className='absolute top-4 right-4 w-3 h-3 rounded-full bg-slate-300';
+      document.getElementById('timerDisplay').textContent='00:00:00';
+      document.getElementById('startTimeInfo').classList.add('hidden');
+      document.getElementById('btnStart').classList.remove('hidden');
+      document.getElementById('btnStop').classList.add('hidden');
+    }
+
+    function startSession() {
+      if (isExpired(currentLight)) { showToast('Đèn đã hết tuổi thọ'); return; }
+      sessionStart = new Date();
+      document.getElementById('statusText').textContent='ĐANG MỞ ĐÈN';
+      document.getElementById('statusIndicator').className='absolute top-4 right-4 w-3 h-3 rounded-full bg-green-500 pulse-ring';
+      document.getElementById('startTimeLabel').textContent=formatTime(sessionStart);
+      document.getElementById('startTimeInfo').classList.remove('hidden');
+      document.getElementById('btnStart').classList.add('hidden');
+      document.getElementById('btnStop').classList.remove('hidden');
+      timerInterval = setInterval(() => {
+        document.getElementById('timerDisplay').textContent = formatDuration(Date.now()-sessionStart.getTime());
+      }, 200);
+      window.onbeforeunload = () => 'Phiên đang chạy';
+      showToast('Đã ghi giờ mở · '+formatTime(sessionStart));
+    }
+    function stopSession() {
+      if (!sessionStart) return;
+      const end = new Date();
+      const min = minutesOf(end - sessionStart);
+      const record = {
+        id: Date.now(),
+        light: currentLight,
+        date: sessionStart.toLocaleDateString('vi-VN'),
+        start: formatTime(sessionStart),
+        end: formatTime(end),
+        minutes: min,
+        user: "nt",
+        note: ""
+      };
+      sessions.push(record);
+      localStorage.setItem('lightSessions', JSON.stringify(sessions));
+      config.used[currentLight] = (config.used[currentLight]||0) + min;
+      saveConfig();
+      stopTimer(); window.onbeforeunload=null;
+
+      // Gửi lên Google Sheets (backend)
+      showToast('Đang lưu lên hệ thống...');
+      fetch("https://script.google.com/macros/library/d/1bH6ft5JtjCRBDiRCMqtdC3sHbD_053bVlmd1Fop1rLbWoLH2g8TEpeij/1", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(record)
+      }).then(() => {
+        showToast(`Đã lưu ${min} phút · ${currentLight}`);
+      }).catch(() => {
+        showToast(`Đã lưu local ${min} phút (Sheet có thể chậm)`);
+      });
+
+      setTimeout(() => {
+        resetTrackingUI(); updateRemainDisplay(); updateTodayStats();
+        if (isExpired(currentLight)) showToast('⚠ '+currentLight+' đã hết tuổi thọ!');
+      }, 600);
+    }
+    function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; sessionStart=null; }
+
+    // History
+    function openHistory() {
+      const list = document.getElementById('historyList');
+      const today = new Date().toLocaleDateString('vi-VN');
+      const t = sessions.filter(s=>s.date===today).reverse();
+      list.innerHTML = t.length ? t.map(s=>`
+        <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center">
+          <div><div class="font-semibold ${s.light==='TL83'?'text-amber-600':'text-sky-600'}">${s.light}</div>
+          <div class="text-sm text-slate-500">${s.start} → ${s.end}</div></div>
+          <div class="text-right"><div class="font-bold text-lg">${s.minutes}'</div><div class="text-xs text-slate-400">phút</div></div>
+        </div>`).join('') : '<div class="text-center text-slate-400 py-10">Chưa có phiên nào hôm nay</div>';
+      document.getElementById('historyPanel').classList.remove('hidden');
+    }
+    function closeHistory() { document.getElementById('historyPanel').classList.add('hidden'); }
+    function clearToday() {
+      if (!confirm('Xóa dữ liệu hôm nay?')) return;
+      const today = new Date().toLocaleDateString('vi-VN');
+      sessions = sessions.filter(s=>s.date!==today);
+      localStorage.setItem('lightSessions', JSON.stringify(sessions));
+      openHistory(); updateTodayStats(); showToast('Đã xóa');
+    }
+    function exportCSV() {
+      if (!sessions.length) { showToast('Chưa có dữ liệu'); return; }
+      const rows = 'Ngày,Nguồn sáng,Giờ mở,Giờ đóng,Số phút\n' + sessions.map(s=>`${s.date},${s.light},${s.start},${s.end},${s.minutes}`).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\uFEFF'+rows], {type:'text/csv;charset=utf-8'}));
+      a.download = `Theo_doi_den_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); showToast('Đã tải CSV');
+    }
+
+    // Admin
+    function openAdmin() {
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('adminLogin').classList.remove('hidden');
+      document.getElementById('adminContent').classList.add('hidden');
+      document.getElementById('adminPass').value = '';
+    }
+    function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+    function checkAdminPass() {
+      if (document.getElementById('adminPass').value !== ADMIN_PASS) { showToast('Sai mật khẩu'); return; }
+      document.getElementById('adminLogin').classList.add('hidden');
+      document.getElementById('adminContent').classList.remove('hidden');
+      document.getElementById('lifeTL83').value = config.life.TL83;
+      document.getElementById('lifeD65').value = config.life.D65;
+      document.getElementById('usedTL83').textContent = (config.used.TL83||0).toLocaleString('vi-VN')+' phút';
+      document.getElementById('usedD65').textContent = (config.used.D65||0).toLocaleString('vi-VN')+' phút';
+      document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
+      document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
+    }
+    function saveLifespan() {
+      config.life.TL83 = parseInt(document.getElementById('lifeTL83').value)||DEFAULT_LIFE.TL83;
+      config.life.D65 = parseInt(document.getElementById('lifeD65').value)||DEFAULT_LIFE.D65;
+      saveConfig(); updateRemainDisplay(); updateHomeRemain();
+      document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
+      document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
+      showToast('Đã lưu tuổi thọ');
+    }
+    function resetBulb(l) {
+      if (!confirm(`Xác nhận đã thay bóng ${l} mới?`)) return;
+      config.used[l] = 0; saveConfig();
+      document.getElementById('used'+l).textContent = '0 phút';
+      document.getElementById('left'+l).textContent = remaining(l).toLocaleString('vi-VN')+' phút';
+      updateRemainDisplay(); updateHomeRemain();
+      showToast('Đã reset '+l);
+    }
+
+    // Init
+    updateRemainDisplay(); updateTodayStats();
+  </script>
+</body>
+</html>
