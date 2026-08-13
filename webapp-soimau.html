@@ -286,7 +286,9 @@
   <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-[70] max-w-[90%] text-center whitespace-nowrap"></div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec";
+    // ĐƯỜNG LINK MỚI NHẤT ĐÃ ĐƯỢC CẬP NHẬT Ở ĐÂY
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOSVmlKVlzBh4XufEgIGjRtjFZ1wS1LKtUEowSkSKWjTCtX2Dwbdf0oX839EEbnqs0/exec";
+    
     const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
     const ADMIN_PASS = 'hoatho2026';
 
@@ -306,18 +308,17 @@
       setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
     
-    // HÀM MỚI ĐÃ ĐƯỢC CẢI TIẾN
+    // Hàm đồng bộ từ server
     function syncFromServer(isSilent = false) {
       if (!isSilent) showToast('Đang tải dữ liệu thực tế từ hệ thống...');
       
-      // Thêm tham số timestamp để báo trình duyệt KHÔNG dùng bộ nhớ đệm (cache)
       const urlWithCacheBuster = SCRIPT_URL + "?t=" + new Date().getTime();
       
       fetch(urlWithCacheBuster)
-        .then(res => res.text()) // Nhận dạng văn bản trước để xử lý lỗi tốt hơn
+        .then(res => res.text())
         .then(text => {
           try {
-            const data = JSON.parse(text); // Ép kiểu sang JSON
+            const data = JSON.parse(text); 
             
             if (data.error) {
               console.error("Lỗi từ server:", data.error);
@@ -325,7 +326,6 @@
               return;
             }
             
-            // Cập nhật lại số liệu cấu hình local từ server
             config.used.TL83 = data.TL83.used;
             config.used.D65 = data.D65.used;
             config.life.TL83 = data.TL83.used + data.TL83.remain;
@@ -338,10 +338,9 @@
             if (!isSilent) showToast('Đã đồng bộ số liệu thành công!');
             
           } catch (e) {
-            // NẾU RƠI VÀO ĐÂY: Chứng tỏ Google Sheets chưa chịu cập nhật bản code mới
-            console.error("Lỗi Parse JSON. Code Google Sheets hiện đang trả về:", text);
+            console.error("Lỗi Parse JSON:", text);
             if (!isSilent) {
-              alert("LỖI CODE GOOGLE SHEETS: Hệ thống đang nhận được một dòng chữ thay vì dữ liệu JSON. Bạn cần vào Apps Script làm lại bước Deploy (Tạo phiên bản MỚI).");
+              alert("LỖI CODE GOOGLE SHEETS: Hệ thống chưa lấy được dữ liệu JSON. Bạn cần Deploy lại Apps Script.");
             }
           }
         })
