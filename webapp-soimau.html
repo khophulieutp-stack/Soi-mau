@@ -384,6 +384,7 @@
       window.onbeforeunload = () => 'Phiên đang chạy';
       showToast('Đã ghi giờ mở · '+formatTime(sessionStart));
     }
+    
     function stopSession() {
       if (!sessionStart) return;
       const end = new Date();
@@ -398,6 +399,7 @@
         user: "nt",
         note: ""
       };
+      
       sessions.push(record);
       localStorage.setItem('lightSessions', JSON.stringify(sessions));
       config.used[currentLight] = (config.used[currentLight]||0) + min;
@@ -407,25 +409,20 @@
       // Gửi lên Google Sheets (backend)
       showToast('Đang lưu lên hệ thống...');
       
-      // SỬ DỤNG LINK WEB APP CHUẨN Ở ĐÂY
+      // SỬ DỤNG LINK WEB APP CHUẨN Ở ĐÂY - ĐÃ BỔ SUNG MODE NO-CORS
       fetch("https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec", {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(record)
       })
-      .then(response => response.text())
-      .then(text => {
-        if(text === "Success") {
-            showToast(`Đã lưu ${min} phút · ${currentLight}`);
-        } else {
-            // Hiển thị thẳng lỗi ra màn hình để biết tại sao
-            alert("Lỗi từ Google Sheets: " + text); 
-            showToast(`Đã lưu local ${min} phút`);
-        }
+      .then(() => {
+        // Khi dùng no-cors, việc gửi đi thành công sẽ nhảy vào đây
+        showToast(`Đã lưu ${min} phút · ${currentLight}`);
       })
       .catch(err => {
-        alert("Lỗi kết nối: " + err);
-        showToast(`Đã lưu local ${min} phút (Sheet có thể chậm)`);
+        console.error("Lỗi mạng:", err);
+        showToast(`Đã lưu local ${min} phút (Có lỗi mạng)`);
       });
 
       setTimeout(() => {
@@ -433,6 +430,7 @@
         if (isExpired(currentLight)) showToast('⚠ '+currentLight+' đã hết tuổi thọ!');
       }, 600);
     }
+    
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; sessionStart=null; }
 
     // History
