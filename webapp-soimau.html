@@ -406,14 +406,25 @@
 
       // Gửi lên Google Sheets (backend)
       showToast('Đang lưu lên hệ thống...');
+      
+      // SỬ DỤNG LINK WEB APP CHUẨN Ở ĐÂY
       fetch("https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec", {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(record)
-      }).then(() => {
-        showToast(`Đã lưu ${min} phút · ${currentLight}`);
-      }).catch(() => {
+      })
+      .then(response => response.text())
+      .then(text => {
+        if(text === "Success") {
+            showToast(`Đã lưu ${min} phút · ${currentLight}`);
+        } else {
+            // Hiển thị thẳng lỗi ra màn hình để biết tại sao
+            alert("Lỗi từ Google Sheets: " + text); 
+            showToast(`Đã lưu local ${min} phút`);
+        }
+      })
+      .catch(err => {
+        alert("Lỗi kết nối: " + err);
         showToast(`Đã lưu local ${min} phút (Sheet có thể chậm)`);
       });
 
