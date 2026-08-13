@@ -142,7 +142,7 @@
       </div>
 
       <!-- Menu cards -->
-      <button onclick="syncFromServer()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
+      <button onclick="syncFromServer(false)" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
         <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -306,32 +306,48 @@
       setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
     
-    // HÀM MỚI: TỰ ĐỘNG ĐỒNG BỘ DỮ LIỆU TỪ GOOGLE SHEETS VỀ MÁY
-    function syncFromServer() {
-      showToast('Đang tải dữ liệu thực tế từ hệ thống...');
-      // Mặc định fetch GET không bị chặn bởi CORS khi nhận ContentService của Google
-      fetch(SCRIPT_URL)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Lỗi từ server:", data.error);
-            showToast("Lỗi đồng bộ máy chủ!");
-            return;
+    // HÀM MỚI ĐÃ ĐƯỢC CẢI TIẾN
+    function syncFromServer(isSilent = false) {
+      if (!isSilent) showToast('Đang tải dữ liệu thực tế từ hệ thống...');
+      
+      // Thêm tham số timestamp để báo trình duyệt KHÔNG dùng bộ nhớ đệm (cache)
+      const urlWithCacheBuster = SCRIPT_URL + "?t=" + new Date().getTime();
+      
+      fetch(urlWithCacheBuster)
+        .then(res => res.text()) // Nhận dạng văn bản trước để xử lý lỗi tốt hơn
+        .then(text => {
+          try {
+            const data = JSON.parse(text); // Ép kiểu sang JSON
+            
+            if (data.error) {
+              console.error("Lỗi từ server:", data.error);
+              if (!isSilent) showToast("Lỗi đồng bộ: " + data.error);
+              return;
+            }
+            
+            // Cập nhật lại số liệu cấu hình local từ server
+            config.used.TL83 = data.TL83.used;
+            config.used.D65 = data.D65.used;
+            config.life.TL83 = data.TL83.used + data.TL83.remain;
+            config.life.D65 = data.D65.used + data.D65.remain;
+            
+            saveConfig();
+            updateRemainDisplay();
+            updateHomeRemain();
+            
+            if (!isSilent) showToast('Đã đồng bộ số liệu thành công!');
+            
+          } catch (e) {
+            // NẾU RƠI VÀO ĐÂY: Chứng tỏ Google Sheets chưa chịu cập nhật bản code mới
+            console.error("Lỗi Parse JSON. Code Google Sheets hiện đang trả về:", text);
+            if (!isSilent) {
+              alert("LỖI CODE GOOGLE SHEETS: Hệ thống đang nhận được một dòng chữ thay vì dữ liệu JSON. Bạn cần vào Apps Script làm lại bước Deploy (Tạo phiên bản MỚI).");
+            }
           }
-          // Cập nhật lại số liệu cấu hình local từ server
-          config.used.TL83 = data.TL83.used;
-          config.used.D65 = data.D65.used;
-          config.life.TL83 = data.TL83.used + data.TL83.remain;
-          config.life.D65 = data.D65.used + data.D65.remain;
-          
-          saveConfig();
-          updateRemainDisplay();
-          updateHomeRemain();
-          showToast('Đã đồng bộ số liệu thành công!');
         })
         .catch(err => {
-          console.error("Lỗi lấy dữ liệu:", err);
-          showToast('Kết nối yếu, đang dùng dữ liệu lưu tạm');
+          console.error("Lỗi kết nối:", err);
+          if (!isSilent) showToast('Mạng chập chờn, đang dùng dữ liệu nội bộ');
         });
     }
 
@@ -432,7 +448,6 @@
     function stopSession() {
       if (!sessionStart) return;
 
-      // Yêu cầu nhập tên người theo dõi
       let observerName = prompt("Vui lòng nhập tên người theo dõi (Bắt buộc):", localStorage.getItem('lastObserver') || "");
       if (observerName === null) return; 
       observerName = observerName.trim();
@@ -554,7 +569,9 @@
     // KHỞI CHẠY HỆ THỐNG
     updateRemainDisplay(); 
     updateTodayStats();
-    syncFromServer(); // Tự động lấy dữ liệu từ Google Sheets khi vừa mở Web App
+    
+    // Gọi hàm đồng bộ ở chế độ Silent (im lặng - không báo toast) khi vừa mở trang
+    syncFromServer(true); 
 
   </script>
 </body>
