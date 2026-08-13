@@ -387,6 +387,25 @@
     
     function stopSession() {
       if (!sessionStart) return;
+
+      // Yêu cầu nhập tên người theo dõi
+      let observerName = prompt("Vui lòng nhập tên người theo dõi (Bắt buộc):", localStorage.getItem('lastObserver') || "");
+      
+      // Nếu người dùng bấm Hủy (Cancel) hộp thoại
+      if (observerName === null) {
+        return; // Dừng việc lưu, thời gian vẫn tiếp tục đếm
+      }
+      
+      observerName = observerName.trim();
+      // Nếu để trống tên
+      if (observerName === "") {
+        alert("Bạn phải nhập tên người theo dõi để lưu dữ liệu!");
+        return; // Dừng việc lưu, thời gian vẫn đếm
+      }
+
+      // Lưu lại tên vào bộ nhớ tạm để lần sau tự điền sẵn
+      localStorage.setItem('lastObserver', observerName);
+
       const end = new Date();
       const min = minutesOf(end - sessionStart);
       const record = {
@@ -396,7 +415,7 @@
         start: formatTime(sessionStart),
         end: formatTime(end),
         minutes: min,
-        user: "nt",
+        user: observerName, // Tên được lấy từ biến vừa nhập
         note: ""
       };
       
@@ -409,7 +428,6 @@
       // Gửi lên Google Sheets (backend)
       showToast('Đang lưu lên hệ thống...');
       
-      // SỬ DỤNG LINK WEB APP CHUẨN Ở ĐÂY - ĐÃ BỔ SUNG MODE NO-CORS
       fetch("https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec", {
         method: "POST",
         mode: "no-cors",
@@ -417,7 +435,6 @@
         body: JSON.stringify(record)
       })
       .then(() => {
-        // Khi dùng no-cors, việc gửi đi thành công sẽ nhảy vào đây
         showToast(`Đã lưu ${min} phút · ${currentLight}`);
       })
       .catch(err => {
