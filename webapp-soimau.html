@@ -142,6 +142,19 @@
       </div>
 
       <!-- Menu cards -->
+      <button onclick="syncFromServer()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
+        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <div class="flex-1 text-left">
+          <div class="font-semibold text-slate-800">Đồng bộ dữ liệu</div>
+          <div class="text-xs text-slate-500">Lấy dữ liệu thời gian mới nhất từ Google Sheets</div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
       <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
         <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -270,9 +283,10 @@
     </div>
   </section>
 
-  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-[70] max-w-[90%] text-center"></div>
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-[70] max-w-[90%] text-center whitespace-nowrap"></div>
 
   <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec";
     const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
     const ADMIN_PASS = 'hoatho2026';
 
@@ -291,6 +305,36 @@
       t.classList.remove('opacity-0');
       setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
+    
+    // HÀM MỚI: TỰ ĐỘNG ĐỒNG BỘ DỮ LIỆU TỪ GOOGLE SHEETS VỀ MÁY
+    function syncFromServer() {
+      showToast('Đang tải dữ liệu thực tế từ hệ thống...');
+      // Mặc định fetch GET không bị chặn bởi CORS khi nhận ContentService của Google
+      fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Lỗi từ server:", data.error);
+            showToast("Lỗi đồng bộ máy chủ!");
+            return;
+          }
+          // Cập nhật lại số liệu cấu hình local từ server
+          config.used.TL83 = data.TL83.used;
+          config.used.D65 = data.D65.used;
+          config.life.TL83 = data.TL83.used + data.TL83.remain;
+          config.life.D65 = data.D65.used + data.D65.remain;
+          
+          saveConfig();
+          updateRemainDisplay();
+          updateHomeRemain();
+          showToast('Đã đồng bộ số liệu thành công!');
+        })
+        .catch(err => {
+          console.error("Lỗi lấy dữ liệu:", err);
+          showToast('Kết nối yếu, đang dùng dữ liệu lưu tạm');
+        });
+    }
+
     function formatTime(d) { return d.toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }); }
     function formatDuration(ms) {
       const s = Math.floor(ms/1000);
@@ -390,20 +434,12 @@
 
       // Yêu cầu nhập tên người theo dõi
       let observerName = prompt("Vui lòng nhập tên người theo dõi (Bắt buộc):", localStorage.getItem('lastObserver') || "");
-      
-      // Nếu người dùng bấm Hủy (Cancel) hộp thoại
-      if (observerName === null) {
-        return; // Dừng việc lưu, thời gian vẫn tiếp tục đếm
-      }
-      
+      if (observerName === null) return; 
       observerName = observerName.trim();
-      // Nếu để trống tên
       if (observerName === "") {
         alert("Bạn phải nhập tên người theo dõi để lưu dữ liệu!");
-        return; // Dừng việc lưu, thời gian vẫn đếm
+        return; 
       }
-
-      // Lưu lại tên vào bộ nhớ tạm để lần sau tự điền sẵn
       localStorage.setItem('lastObserver', observerName);
 
       const end = new Date();
@@ -415,7 +451,7 @@
         start: formatTime(sessionStart),
         end: formatTime(end),
         minutes: min,
-        user: observerName, // Tên được lấy từ biến vừa nhập
+        user: observerName, 
         note: ""
       };
       
@@ -425,10 +461,9 @@
       saveConfig();
       stopTimer(); window.onbeforeunload=null;
 
-      // Gửi lên Google Sheets (backend)
       showToast('Đang lưu lên hệ thống...');
       
-      fetch("https://script.google.com/macros/s/AKfycbzbgOzsoRGK4crmja0Ar5aAn49Z-pgcn2IwV4ug3u0pijGYjvLFqJcBVAix4tx_dCQR/exec", {
+      fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
@@ -516,8 +551,11 @@
       showToast('Đã reset '+l);
     }
 
-    // Init
-    updateRemainDisplay(); updateTodayStats();
+    // KHỞI CHẠY HỆ THỐNG
+    updateRemainDisplay(); 
+    updateTodayStats();
+    syncFromServer(); // Tự động lấy dữ liệu từ Google Sheets khi vừa mở Web App
+
   </script>
 </body>
 </html>
