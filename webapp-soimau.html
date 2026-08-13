@@ -388,16 +388,39 @@
       if (!sessionStart) return;
       const end = new Date();
       const min = minutesOf(end - sessionStart);
-      sessions.push({ id:Date.now(), light:currentLight, date:sessionStart.toLocaleDateString('vi-VN'), start:formatTime(sessionStart), end:formatTime(end), minutes:min });
+      const record = {
+        id: Date.now(),
+        light: currentLight,
+        date: sessionStart.toLocaleDateString('vi-VN'),
+        start: formatTime(sessionStart),
+        end: formatTime(end),
+        minutes: min,
+        user: "nt",
+        note: ""
+      };
+      sessions.push(record);
       localStorage.setItem('lightSessions', JSON.stringify(sessions));
       config.used[currentLight] = (config.used[currentLight]||0) + min;
       saveConfig();
       stopTimer(); window.onbeforeunload=null;
-      showToast(`Đã lưu ${min} phút · ${currentLight}`);
+
+      // Gửi lên Google Sheets (backend)
+      showToast('Đang lưu lên hệ thống...');
+      fetch("https://script.google.com/macros/s/AKfycbxVxkxTUOTS1wkNTcLBgQWz9BV9PsL1N55UFIg9i7Z6BJAk0hvsL7MswAP9jdiKqgaANw/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(record)
+      }).then(() => {
+        showToast(`Đã lưu ${min} phút · ${currentLight}`);
+      }).catch(() => {
+        showToast(`Đã lưu local ${min} phút (Sheet có thể chậm)`);
+      });
+
       setTimeout(() => {
         resetTrackingUI(); updateRemainDisplay(); updateTodayStats();
         if (isExpired(currentLight)) showToast('⚠ '+currentLight+' đã hết tuổi thọ!');
-      }, 500);
+      }, 600);
     }
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; sessionStart=null; }
 
