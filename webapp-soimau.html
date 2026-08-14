@@ -38,10 +38,31 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
 
+  <!-- MÀN HÌNH ĐĂNG NHẬP CHỐNG NGƯỜI LẠ -->
+  <div id="loginScreen" class="fixed inset-0 z-[100] bg-slate-900/95 flex items-center justify-center backdrop-blur-sm hidden">
+    <div class="bg-white w-[90%] max-w-sm rounded-3xl p-8 shadow-2xl space-y-6 transform transition-all">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">Đăng nhập P.LAB</h2>
+        <p class="text-sm text-slate-500 mt-1">Hệ thống Giám sát nguồn sáng</p>
+      </div>
+      <div class="space-y-4">
+        <input id="loginUser" type="text" placeholder="Tên đăng nhập" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none transition text-center font-medium" />
+        <input id="loginPass" type="password" placeholder="Mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none transition text-center tracking-widest" />
+        <button id="btnLogin" onclick="loginSystem()" class="w-full py-3.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 active:scale-95 transition">Đăng nhập ngay</button>
+      </div>
+    </div>
+  </div>
+
   <header class="bg-primary text-white sticky top-0 z-40 shadow-lg">
-    <div class="max-w-lg mx-auto px-4 py-3 text-center">
-      <div class="text-xs opacity-80 font-medium tracking-wide">TỔNG CÔNG TY CỔ PHẦN DỆT MAY HÒA THỌ</div>
-      <div class="text-lg font-bold leading-tight">P.LAB · Giám sát nguồn sáng</div>
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="text-left">
+        <div class="text-xs opacity-80 font-medium tracking-wide">P.LAB HÒA THỌ</div>
+        <div class="text-sm font-bold leading-tight">Giám sát nguồn sáng</div>
+      </div>
+      <div id="currentUserBadge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">Chưa ĐN</div>
     </div>
   </header>
 
@@ -129,7 +150,6 @@
       </div>
     </section>
 
-    <!-- ===== TAB: HOME (Lịch sử + Cài đặt) ===== -->
     <section id="tabHome" class="hidden space-y-4">
       <div class="text-center mb-2">
         <h1 class="text-xl font-bold text-primary">Trang chủ</h1>
@@ -144,9 +164,8 @@
         </div>
         <div class="flex-1 text-left">
           <div class="font-semibold text-slate-800">Đồng bộ dữ liệu</div>
-          <div class="text-xs text-slate-500">Lấy dữ liệu & danh sách người dùng mới nhất</div>
+          <div class="text-xs text-slate-500">Tải số liệu mới nhất từ máy chủ</div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
 
       <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
@@ -157,9 +176,8 @@
         </div>
         <div class="flex-1 text-left">
           <div class="font-semibold text-slate-800">Lịch sử hôm nay</div>
-          <div class="text-xs text-slate-500">Xem & xuất dữ liệu đã ghi</div>
+          <div class="text-xs text-slate-500">Xem & xuất dữ liệu trên máy</div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
 
       <button onclick="openAdmin()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
@@ -171,9 +189,20 @@
         </div>
         <div class="flex-1 text-left">
           <div class="font-semibold text-slate-800">Cài đặt Admin</div>
-          <div class="text-xs text-slate-500">Tuổi thọ bóng · Reset sau thay bóng</div>
+          <div class="text-xs text-slate-500">Reset bóng · Yêu cầu pass</div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <button onclick="logoutSystem()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition border border-red-50">
+        <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </div>
+        <div class="flex-1 text-left">
+          <div class="font-semibold text-red-600">Đăng xuất</div>
+          <div class="text-xs text-slate-500">Thoát tài khoản hiện tại</div>
+        </div>
       </button>
 
       <div class="bg-white rounded-2xl p-4 shadow-sm mt-2">
@@ -235,7 +264,7 @@
       </div>
 
       <div id="adminLogin" class="p-6 space-y-4">
-        <p class="text-sm text-slate-500 text-center">Nhập mật khẩu Admin</p>
+        <p class="text-sm text-slate-500 text-center">Nhập mật khẩu (Kiểm tra từ Ggsheet)</p>
         <input id="adminPass" type="password" placeholder="Mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary text-center text-lg tracking-widest" />
         <button onclick="checkAdminPass()" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">Đăng nhập</button>
       </div>
@@ -276,15 +305,16 @@
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOSVmlKVlzBh4XufEgIGjRtjFZ1wS1LKtUEowSkSKWjTCtX2Dwbdf0oX839EEbnqs0/exec";
-    
     const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
 
     let currentLight = null;
     let sessionStart = null;
     let timerInterval = null;
     
+    // TÀI KHOẢN ĐANG ĐĂNG NHẬP
+    let currentUser = localStorage.getItem('currentUser');
+    
     let sessions = JSON.parse(localStorage.getItem('lightSessions') || '[]');
-    let allowedUsers = JSON.parse(localStorage.getItem('allowedUsers') || '[]');
     let config = JSON.parse(localStorage.getItem('lightConfig') || JSON.stringify({
       life: { ...DEFAULT_LIFE },
       used: { TL83: 0, D65: 0 }
@@ -297,9 +327,66 @@
       setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
     
+    // XỬ LÝ ĐĂNG NHẬP
+    function checkLoginState() {
+      if (!currentUser) {
+        document.getElementById('loginScreen').classList.remove('hidden');
+      } else {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('currentUserBadge').textContent = currentUser.toUpperCase();
+        syncFromServer(true);
+      }
+    }
+
+    function loginSystem() {
+      const u = document.getElementById('loginUser').value;
+      const p = document.getElementById('loginPass').value;
+      if (!u || !p) { showToast('Vui lòng nhập đủ tên và mật khẩu!'); return; }
+
+      const btn = document.getElementById('btnLogin');
+      btn.textContent = 'Đang xác thực...';
+      btn.disabled = true;
+
+      const url = SCRIPT_URL + "?action=login_user&user=" + encodeURIComponent(u) + "&pass=" + encodeURIComponent(p) + "&t=" + new Date().getTime();
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          btn.textContent = 'Đăng nhập ngay';
+          btn.disabled = false;
+          
+          if (data.status === "OK") {
+            currentUser = data.userName;
+            localStorage.setItem('currentUser', currentUser);
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            showToast('Đăng nhập thành công!');
+            checkLoginState();
+          } else if (data.status === "WRONG") {
+            showToast('Tên hoặc mật khẩu không đúng!');
+          } else {
+            showToast(data.msg || 'Lỗi hệ thống');
+          }
+        })
+        .catch(err => {
+          btn.textContent = 'Đăng nhập ngay';
+          btn.disabled = false;
+          showToast('Lỗi kết nối mạng, vui lòng thử lại');
+        });
+    }
+
+    function logoutSystem() {
+      if (!confirm("Bạn có chắc muốn đăng xuất?")) return;
+      localStorage.removeItem('currentUser');
+      currentUser = null;
+      document.getElementById('currentUserBadge').textContent = 'Chưa ĐN';
+      checkLoginState();
+      switchTab('tracking');
+    }
+    
+    // ĐỒNG BỘ DỮ LIỆU
     function syncFromServer(isSilent = false) {
       if (!isSilent) showToast('Đang tải dữ liệu thực tế từ hệ thống...');
-      
       const urlWithCacheBuster = SCRIPT_URL + "?t=" + new Date().getTime();
       
       fetch(urlWithCacheBuster)
@@ -307,9 +394,7 @@
         .then(text => {
           try {
             const data = JSON.parse(text); 
-            
             if (data.error) {
-              console.error("Lỗi từ server:", data.error);
               if (!isSilent) showToast("Lỗi đồng bộ: " + data.error);
               return;
             }
@@ -319,24 +404,16 @@
             config.life.TL83 = data.TL83.used + data.TL83.remain;
             config.life.D65 = data.D65.used + data.D65.remain;
             
-            if (data.users && Array.isArray(data.users)) {
-              allowedUsers = data.users;
-              localStorage.setItem('allowedUsers', JSON.stringify(allowedUsers));
-            }
-            
             saveConfig();
             updateRemainDisplay();
             updateHomeRemain();
             
             if (!isSilent) showToast('Đã đồng bộ số liệu thành công!');
-            
           } catch (e) {
-            console.error("Lỗi Parse JSON:", text);
-            if (!isSilent) alert("LỖI CODE GOOGLE SHEETS: Hệ thống chưa lấy được dữ liệu JSON. Bạn cần Deploy lại Apps Script.");
+            if (!isSilent) alert("LỖI CODE GOOGLE SHEETS: Chưa lấy được dữ liệu JSON. Bạn cần Deploy lại Apps Script.");
           }
         })
         .catch(err => {
-          console.error("Lỗi kết nối:", err);
           if (!isSilent) showToast('Mạng chập chờn, đang dùng dữ liệu nội bộ');
         });
     }
@@ -366,12 +443,8 @@
     function handleNavTracking() {
       const isTrackingHidden = document.getElementById('tabTracking').classList.contains('hidden');
       const isTimerScreenVisible = !document.getElementById('stepTracking').classList.contains('hidden');
-
-      if (isTrackingHidden) {
-        switchTab('tracking');
-      } else if (isTimerScreenVisible) {
-        backToSelect();
-      }
+      if (isTrackingHidden) { switchTab('tracking'); } 
+      else if (isTimerScreenVisible) { backToSelect(); }
     }
 
     function updateRemainDisplay() {
@@ -390,10 +463,12 @@
         }
       });
     }
+    
     function updateHomeRemain() {
       document.getElementById('homeRemainTL83').textContent = remaining('TL83').toLocaleString('vi-VN') + ' phút';
       document.getElementById('homeRemainD65').textContent = remaining('D65').toLocaleString('vi-VN') + ' phút';
     }
+    
     function updateTodayStats() {
       const today = new Date().toLocaleDateString('vi-VN');
       const t = sessions.filter(s => s.date === today);
@@ -412,6 +487,7 @@
       document.getElementById('remainInfo').textContent = 'Còn lại: ' + remaining(light).toLocaleString('vi-VN') + ' phút';
       resetTrackingUI();
     }
+    
     function backToSelect() {
       if (sessionStart && !confirm('Đang giám sát. Thoát sẽ mất phiên này?')) return;
       stopTimer(); currentLight=null;
@@ -419,6 +495,7 @@
       document.getElementById('stepSelect').classList.remove('hidden');
       updateRemainDisplay(); updateTodayStats();
     }
+    
     function resetTrackingUI() {
       sessionStart=null;
       document.getElementById('statusText').textContent='Sẵn sàng bắt đầu';
@@ -448,24 +525,11 @@
     function stopSession() {
       if (!sessionStart) return;
 
-      let observerName = prompt("Vui lòng nhập tên người theo dõi (Bắt buộc):", localStorage.getItem('lastObserver') || "");
-      if (observerName === null) return; 
-      observerName = observerName.trim();
-      if (observerName === "") {
-        alert("Bạn phải nhập tên người theo dõi để lưu dữ liệu!");
-        return; 
+      // KHÔNG CẦN HỎI TÊN NỮA, LẤY LUÔN TÊN TỪ TÀI KHOẢN ĐANG ĐĂNG NHẬP
+      if (!currentUser) {
+        alert("Lỗi: Không tìm thấy phiên đăng nhập. Vui lòng tải lại trang và đăng nhập lại!");
+        return;
       }
-
-      // XÁC THỰC TÊN VỚI DANH SÁCH TỪ GOOGLE SHEETS
-      if (allowedUsers.length > 0) {
-        const isAllowed = allowedUsers.some(u => u === observerName.toLowerCase());
-        if (!isAllowed) {
-          alert(`LỖI TỪ CHỐI QUYỀN:\nTên "${observerName}" không có trong danh sách được phép!\n\nVui lòng kiểm tra lại tên hoặc báo Admin thêm tên vào hệ thống.`);
-          return; 
-        }
-      }
-
-      localStorage.setItem('lastObserver', observerName);
 
       const end = new Date();
       const min = minutesOf(end - sessionStart);
@@ -476,7 +540,7 @@
         start: formatTime(sessionStart),
         end: formatTime(end),
         minutes: min,
-        user: observerName, 
+        user: currentUser, 
         note: ""
       };
       
@@ -547,7 +611,6 @@
     }
     function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
     
-    // HÀM MỚI: GỬI LÊN MÁY CHỦ ĐỂ XÁC THỰC MẬT KHẨU
     function checkAdminPass() {
       const passInput = document.getElementById('adminPass').value;
       if (!passInput) { showToast('Vui lòng nhập mật khẩu'); return; }
@@ -596,6 +659,7 @@
       document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
       showToast('Đã lưu tuổi thọ');
     }
+    
     function resetBulb(l) {
       if (!confirm(`Xác nhận đã thay bóng ${l} mới?`)) return;
       config.used[l] = 0; saveConfig();
@@ -605,9 +669,11 @@
       showToast('Đã reset '+l);
     }
 
+    // KHỞI CHẠY
     updateRemainDisplay(); 
     updateTodayStats();
-    syncFromServer(true); 
+    checkLoginState(); // Bật tường lửa kiểm tra đăng nhập ngay khi mở trang
+
   </script>
 </body>
 </html>
