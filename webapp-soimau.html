@@ -38,7 +38,6 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
 
-  <!-- Header -->
   <header class="bg-primary text-white sticky top-0 z-40 shadow-lg">
     <div class="max-w-lg mx-auto px-4 py-3 text-center">
       <div class="text-xs opacity-80 font-medium tracking-wide">TỔNG CÔNG TY CỔ PHẦN DỆT MAY HÒA THỌ</div>
@@ -47,10 +46,7 @@
   </header>
 
   <main class="max-w-lg mx-auto px-4 py-5 safe-bottom">
-
-    <!-- ===== TAB: THEO DÕI (mặc định) ===== -->
     <section id="tabTracking">
-      <!-- Step 1: Chọn đèn -->
       <div id="stepSelect" class="space-y-4">
         <div class="text-center mb-5">
           <h1 class="text-xl font-bold text-primary">Chọn nguồn sáng</h1>
@@ -102,7 +98,6 @@
         </div>
       </div>
 
-      <!-- Step 2: Tracking -->
       <div id="stepTracking" class="hidden space-y-5">
         <div class="flex items-center justify-between">
           <button onclick="backToSelect()" class="flex items-center gap-1 text-sm text-slate-500">
@@ -141,7 +136,6 @@
         <p class="text-sm text-slate-500">Lịch sử & Cài đặt hệ thống</p>
       </div>
 
-      <!-- Menu cards -->
       <button onclick="syncFromServer(false)" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
         <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +144,7 @@
         </div>
         <div class="flex-1 text-left">
           <div class="font-semibold text-slate-800">Đồng bộ dữ liệu</div>
-          <div class="text-xs text-slate-500">Lấy dữ liệu thời gian mới nhất từ Google Sheets</div>
+          <div class="text-xs text-slate-500">Lấy dữ liệu & danh sách người dùng mới nhất</div>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
@@ -182,7 +176,6 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
 
-      <!-- Quick remain info -->
       <div class="bg-white rounded-2xl p-4 shadow-sm mt-2">
         <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div>
         <div class="space-y-2">
@@ -199,10 +192,8 @@
     </section>
   </main>
 
-  <!-- ===== BOTTOM NAV ===== -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50" style="padding-bottom: env(safe-area-inset-bottom);">
     <div class="max-w-lg mx-auto grid grid-cols-2">
-      <!-- ĐÃ CẬP NHẬT ONCLICK THÀNH handleNavTracking() -->
       <button id="navTracking" onclick="handleNavTracking()" class="nav-item active flex flex-col items-center py-2.5 text-primary">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
@@ -218,7 +209,6 @@
     </div>
   </nav>
 
-  <!-- History Panel -->
   <section id="historyPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] overflow-hidden flex flex-col">
       <div class="px-5 py-4 border-b flex items-center justify-between">
@@ -235,7 +225,6 @@
     </div>
   </section>
 
-  <!-- Admin Panel -->
   <section id="adminPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden flex flex-col">
       <div class="px-5 py-4 border-b flex items-center justify-between">
@@ -246,10 +235,9 @@
       </div>
 
       <div id="adminLogin" class="p-6 space-y-4">
-        <p class="text-sm text-slate-500 text-center">Nhập mật khẩu Admin</p>
+        <p class="text-sm text-slate-500 text-center">Nhập mật khẩu Admin (lấy từ Google Sheets)</p>
         <input id="adminPass" type="password" placeholder="Mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary text-center text-lg tracking-widest" />
         <button onclick="checkAdminPass()" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">Đăng nhập</button>
-        <p class="text-xs text-center text-slate-400">Mật khẩu mặc định: <strong>hoatho2026</strong></p>
       </div>
 
       <div id="adminContent" class="hidden flex-1 overflow-y-auto p-5 space-y-5">
@@ -290,12 +278,13 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOSVmlKVlzBh4XufEgIGjRtjFZ1wS1LKtUEowSkSKWjTCtX2Dwbdf0oX839EEbnqs0/exec";
     
     const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
-    const ADMIN_PASS = 'hoatho2026';
 
     let currentLight = null;
     let sessionStart = null;
     let timerInterval = null;
+    
     let sessions = JSON.parse(localStorage.getItem('lightSessions') || '[]');
+    let allowedUsers = JSON.parse(localStorage.getItem('allowedUsers') || '[]');
     let config = JSON.parse(localStorage.getItem('lightConfig') || JSON.stringify({
       life: { ...DEFAULT_LIFE },
       used: { TL83: 0, D65: 0 }
@@ -330,6 +319,11 @@
             config.life.TL83 = data.TL83.used + data.TL83.remain;
             config.life.D65 = data.D65.used + data.D65.remain;
             
+            if (data.users && Array.isArray(data.users)) {
+              allowedUsers = data.users;
+              localStorage.setItem('allowedUsers', JSON.stringify(allowedUsers));
+            }
+            
             saveConfig();
             updateRemainDisplay();
             updateHomeRemain();
@@ -338,9 +332,7 @@
             
           } catch (e) {
             console.error("Lỗi Parse JSON:", text);
-            if (!isSilent) {
-              alert("LỖI CODE GOOGLE SHEETS: Hệ thống chưa lấy được dữ liệu JSON. Bạn cần Deploy lại Apps Script.");
-            }
+            if (!isSilent) alert("LỖI CODE GOOGLE SHEETS: Hệ thống chưa lấy được dữ liệu JSON. Bạn cần Deploy lại Apps Script.");
           }
         })
         .catch(err => {
@@ -359,7 +351,6 @@
     function isExpired(l) { return remaining(l) <= 0; }
     function saveConfig() { localStorage.setItem('lightConfig', JSON.stringify(config)); }
 
-    // ===== TAB SWITCH =====
     function switchTab(tab) {
       document.getElementById('tabTracking').classList.toggle('hidden', tab !== 'tracking');
       document.getElementById('tabHome').classList.toggle('hidden', tab !== 'home');
@@ -372,16 +363,13 @@
       if (tab === 'home') updateHomeRemain();
     }
 
-    // HÀM MỚI: Xử lý nút điều hướng Giám sát
     function handleNavTracking() {
       const isTrackingHidden = document.getElementById('tabTracking').classList.contains('hidden');
       const isTimerScreenVisible = !document.getElementById('stepTracking').classList.contains('hidden');
 
       if (isTrackingHidden) {
-        // Nếu đang ở Home, chuyển qua Giám sát (giữ nguyên trạng thái)
         switchTab('tracking');
       } else if (isTimerScreenVisible) {
-        // Nếu đã ở Giám sát và đang ở màn hình đếm giờ -> Trở về chọn đèn
         backToSelect();
       }
     }
@@ -467,6 +455,16 @@
         alert("Bạn phải nhập tên người theo dõi để lưu dữ liệu!");
         return; 
       }
+
+      // XÁC THỰC TÊN VỚI DANH SÁCH TỪ GOOGLE SHEETS
+      if (allowedUsers.length > 0) {
+        const isAllowed = allowedUsers.some(u => u === observerName.toLowerCase());
+        if (!isAllowed) {
+          alert(`LỖI TỪ CHỐI QUYỀN:\nTên "${observerName}" không có trong danh sách được phép!\n\nVui lòng kiểm tra lại tên hoặc báo Admin thêm tên vào hệ thống.`);
+          return; 
+        }
+      }
+
       localStorage.setItem('lastObserver', observerName);
 
       const end = new Date();
@@ -512,7 +510,6 @@
     
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; sessionStart=null; }
 
-    // History
     function openHistory() {
       const list = document.getElementById('historyList');
       const today = new Date().toLocaleDateString('vi-VN');
@@ -542,7 +539,6 @@
       a.click(); showToast('Đã tải CSV');
     }
 
-    // Admin
     function openAdmin() {
       document.getElementById('adminPanel').classList.remove('hidden');
       document.getElementById('adminLogin').classList.remove('hidden');
@@ -550,17 +546,48 @@
       document.getElementById('adminPass').value = '';
     }
     function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+    
+    // HÀM MỚI: GỬI LÊN MÁY CHỦ ĐỂ XÁC THỰC MẬT KHẨU
     function checkAdminPass() {
-      if (document.getElementById('adminPass').value !== ADMIN_PASS) { showToast('Sai mật khẩu'); return; }
-      document.getElementById('adminLogin').classList.add('hidden');
-      document.getElementById('adminContent').classList.remove('hidden');
-      document.getElementById('lifeTL83').value = config.life.TL83;
-      document.getElementById('lifeD65').value = config.life.D65;
-      document.getElementById('usedTL83').textContent = (config.used.TL83||0).toLocaleString('vi-VN')+' phút';
-      document.getElementById('usedD65').textContent = (config.used.D65||0).toLocaleString('vi-VN')+' phút';
-      document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
-      document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
+      const passInput = document.getElementById('adminPass').value;
+      if (!passInput) { showToast('Vui lòng nhập mật khẩu'); return; }
+
+      showToast('Đang kiểm tra mật khẩu...');
+      const btn = document.querySelector('#adminLogin button');
+      btn.textContent = "Đang xác thực...";
+      btn.disabled = true;
+
+      const url = SCRIPT_URL + "?action=check_pass&pass=" + encodeURIComponent(passInput) + "&t=" + new Date().getTime();
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          btn.textContent = "Đăng nhập";
+          btn.disabled = false;
+
+          if (data.status === "OK") {
+            showToast('Đăng nhập thành công!');
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminContent').classList.remove('hidden');
+            
+            document.getElementById('lifeTL83').value = config.life.TL83;
+            document.getElementById('lifeD65').value = config.life.D65;
+            document.getElementById('usedTL83').textContent = (config.used.TL83||0).toLocaleString('vi-VN')+' phút';
+            document.getElementById('usedD65').textContent = (config.used.D65||0).toLocaleString('vi-VN')+' phút';
+            document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
+            document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
+          } else {
+            showToast('Sai mật khẩu!');
+            document.getElementById('adminPass').value = '';
+          }
+        })
+        .catch(err => {
+          btn.textContent = "Đăng nhập";
+          btn.disabled = false;
+          showToast('Lỗi kết nối máy chủ');
+        });
     }
+
     function saveLifespan() {
       config.life.TL83 = parseInt(document.getElementById('lifeTL83').value)||DEFAULT_LIFE.TL83;
       config.life.D65 = parseInt(document.getElementById('lifeD65').value)||DEFAULT_LIFE.D65;
@@ -578,13 +605,9 @@
       showToast('Đã reset '+l);
     }
 
-    // KHỞI CHẠY HỆ THỐNG
     updateRemainDisplay(); 
     updateTodayStats();
-    
-    // Gọi hàm đồng bộ ở chế độ Silent (im lặng - không báo toast) khi vừa mở trang
     syncFromServer(true); 
-
   </script>
 </body>
 </html>
