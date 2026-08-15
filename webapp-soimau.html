@@ -450,7 +450,7 @@
     function stopSession() {
       if (!sessionStart) return;
 
-      let observerName = prompt("Vui lòng nhập tên người theo dõi (Bắt buộc):", localStorage.getItem('lastObserver') || "");
+      let observerName = prompt("Vui lòng nhập tên người theo dõi:", localStorage.getItem('lastObserver') || "");
       if (observerName === null) return; 
       observerName = observerName.trim();
       if (observerName === "") {
@@ -462,7 +462,7 @@
       if (allowedUsers.length > 0) {
         const isAllowed = allowedUsers.some(u => u === observerName.toLowerCase());
         if (!isAllowed) {
-          alert(`LỖI TỪ CHỐI QUYỀN:\nTên "${observerName}" không có trong danh sách được phép!\n\nVui lòng kiểm tra lại tên hoặc báo Admin thêm tên vào hệ thống.`);
+          alert(`LỖI TỪ CHỐI QUYỀN:\nTên "${observerName}" không có trong danh sách được phép!\n\nMật khẩu sai.`);
           return; 
         }
       }
