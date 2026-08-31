@@ -72,7 +72,7 @@
               </svg>
             </div>
             <div class="font-bold text-lg">TL84</div>
-            <div class="text-xs text-slate-500 mt-1">Warm White</div>
+            <div class="text-xs text-slate-500 mt-1">PASS</div>
             <div id="remainTL84" class="text-[11px] font-semibold mt-2 text-amber-600">-- phút còn</div>
             <div id="warnTL84" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
               HẾT TUỔI THỌ<br>Cần thay bóng
@@ -86,7 +86,7 @@
               </svg>
             </div>
             <div class="font-bold text-lg">D65</div>
-            <div class="text-xs text-slate-500 mt-1">Daylight</div>
+            <div class="text-xs text-slate-500 mt-1">PASS</div>
             <div id="remainD65" class="text-[11px] font-semibold mt-2 text-sky-600">-- phút còn</div>
             <div id="warnD65" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
               HẾT TUỔI THỌ<br>Cần thay bóng
@@ -257,7 +257,7 @@
 
       <div id="adminContent" class="hidden flex-1 overflow-y-auto p-5 space-y-5">
         <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100">
-          <div class="font-bold text-amber-800 mb-3">TL84 · Warm White</div>
+          <div class="font-bold text-amber-800 mb-3">TL84 · PASS</div>
           <div class="space-y-3">
             <div>
               <label class="text-xs text-slate-500">Tuổi thọ quy định (phút)</label>
@@ -270,7 +270,7 @@
         </div>
 
         <div class="bg-sky-50 rounded-2xl p-4 border border-sky-100">
-          <div class="font-bold text-sky-800 mb-3">D65 · Daylight</div>
+          <div class="font-bold text-sky-800 mb-3">D65 · PASS</div>
           <div class="space-y-3">
             <div>
               <label class="text-xs text-slate-500">Tuổi thọ quy định (phút)</label>
@@ -423,8 +423,8 @@
       document.getElementById('stepSelect').classList.add('hidden');
       document.getElementById('stepTracking').classList.remove('hidden');
       const badge = document.getElementById('lightBadge');
-      if (light==='TL84') { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700'; badge.textContent='TL84 · Warm White'; }
-      else { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-sky-100 text-sky-700'; badge.textContent='D65 · Daylight'; }
+      if (light==='TL84') { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700'; badge.textContent='TL84 · PASS'; }
+      else { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-sky-100 text-sky-700'; badge.textContent='D65 · PASS'; }
       document.getElementById('remainInfo').textContent = 'Còn lại: ' + remaining(light).toLocaleString('vi-VN') + ' phút';
       resetTrackingUI();
     }
