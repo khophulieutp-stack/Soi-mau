@@ -65,16 +65,16 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <button onclick="selectLight('TL83')" class="group relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
+          <button onclick="selectLight('TL84')" class="group relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <div class="font-bold text-lg">TL83</div>
+            <div class="font-bold text-lg">TL84</div>
             <div class="text-xs text-slate-500 mt-1">Warm White</div>
-            <div id="remainTL83" class="text-[11px] font-semibold mt-2 text-amber-600">-- phút còn</div>
-            <div id="warnTL83" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
+            <div id="remainTL84" class="text-[11px] font-semibold mt-2 text-amber-600">-- phút còn</div>
+            <div id="warnTL84" class="hidden absolute inset-0 bg-red-500/90 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">
               HẾT TUỔI THỌ<br>Cần thay bóng
             </div>
           </button>
@@ -98,8 +98,8 @@
           <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Hôm nay</div>
           <div class="grid grid-cols-2 gap-3 text-center">
             <div>
-              <div id="statTL83" class="text-2xl font-bold text-amber-600">0</div>
-              <div class="text-xs text-slate-500">phút TL83</div>
+              <div id="statTL84" class="text-2xl font-bold text-amber-600">0</div>
+              <div class="text-xs text-slate-500">phút TL84</div>
             </div>
             <div>
               <div id="statD65" class="text-2xl font-bold text-sky-600">0</div>
@@ -115,7 +115,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Đổi đèn
           </button>
-          <div id="lightBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700">TL83</div>
+          <div id="lightBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700">TL84</div>
         </div>
 
         <div class="bg-white rounded-3xl shadow-lg p-6 text-center relative">
@@ -193,8 +193,8 @@
         <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div>
         <div class="space-y-2">
           <div class="flex justify-between items-center">
-            <span class="text-sm font-medium text-amber-700">TL83</span>
-            <span id="homeRemainTL83" class="text-sm font-semibold">--</span>
+            <span class="text-sm font-medium text-amber-700">TL84</span>
+            <span id="homeRemainTL84" class="text-sm font-semibold">--</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-sm font-medium text-sky-700">D65</span>
@@ -257,15 +257,15 @@
 
       <div id="adminContent" class="hidden flex-1 overflow-y-auto p-5 space-y-5">
         <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100">
-          <div class="font-bold text-amber-800 mb-3">TL83 · Warm White</div>
+          <div class="font-bold text-amber-800 mb-3">TL84 · Warm White</div>
           <div class="space-y-3">
             <div>
               <label class="text-xs text-slate-500">Tuổi thọ quy định (phút)</label>
-              <input id="lifeTL83" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <input id="lifeTL84" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             </div>
-            <div class="flex justify-between text-sm"><span class="text-slate-500">Đã dùng:</span><span id="usedTL83" class="font-semibold">0</span></div>
-            <div class="flex justify-between text-sm"><span class="text-slate-500">Còn lại:</span><span id="leftTL83" class="font-semibold text-amber-700">0</span></div>
-            <button onclick="resetBulb('TL83')" class="w-full py-2.5 rounded-xl bg-amber-600 text-white text-sm font-semibold">🔄 Đã thay bóng mới → Reset</button>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Đã dùng:</span><span id="usedTL84" class="font-semibold">0</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Còn lại:</span><span id="leftTL84" class="font-semibold text-amber-700">0</span></div>
+            <button onclick="resetBulb('TL84')" class="w-full py-2.5 rounded-xl bg-amber-600 text-white text-sm font-semibold">🔄 Đã thay bóng mới → Reset</button>
           </div>
         </div>
 
@@ -292,7 +292,7 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXS6waZNMJRx6XkOTzw6Q0ALfXcJGHPhADJg77pcPv6x4wUNfqNOZRGfmQVQJfGI0r/exec";
     
-    const DEFAULT_LIFE = { TL83: 120000, D65: 12000 };
+    const DEFAULT_LIFE = { TL84: 120000, D65: 12000 };
     const ADMIN_PASS = 'hoatho2026';
 
     let currentLight = null;
@@ -303,7 +303,7 @@
     let allowedUsers = JSON.parse(localStorage.getItem('allowedUsers') || '[]');
     let config = JSON.parse(localStorage.getItem('lightConfig') || JSON.stringify({
       life: { ...DEFAULT_LIFE },
-      used: { TL83: 0, D65: 0 }
+      used: { TL84: 0, D65: 0 }
     }));
 
     function showToast(msg) {
@@ -330,9 +330,9 @@
               return;
             }
             
-            config.used.TL83 = data.TL83.used;
+            config.used.TL84 = data.TL84.used;
             config.used.D65 = data.D65.used;
-            config.life.TL83 = data.TL83.used + data.TL83.remain;
+            config.life.TL84 = data.TL84.used + data.TL84.remain;
             config.life.D65 = data.D65.used + data.D65.remain;
             
             if (data.users && Array.isArray(data.users)) {
@@ -391,7 +391,7 @@
     }
 
     function updateRemainDisplay() {
-      ['TL83','D65'].forEach(l => {
+      ['TL84','D65'].forEach(l => {
         const rem = remaining(l);
         const el = document.getElementById('remain'+l);
         const warn = document.getElementById('warn'+l);
@@ -401,19 +401,19 @@
           warn.classList.remove('hidden');
         } else {
           el.textContent = rem.toLocaleString('vi-VN') + ' phút còn';
-          el.className = 'text-[11px] font-semibold mt-2 ' + (l==='TL83'?'text-amber-600':'text-sky-600');
+          el.className = 'text-[11px] font-semibold mt-2 ' + (l==='TL84'?'text-amber-600':'text-sky-600');
           warn.classList.add('hidden');
         }
       });
     }
     function updateHomeRemain() {
-      document.getElementById('homeRemainTL83').textContent = remaining('TL83').toLocaleString('vi-VN') + ' phút';
+      document.getElementById('homeRemainTL84').textContent = remaining('TL84').toLocaleString('vi-VN') + ' phút';
       document.getElementById('homeRemainD65').textContent = remaining('D65').toLocaleString('vi-VN') + ' phút';
     }
     function updateTodayStats() {
       const today = new Date().toLocaleDateString('vi-VN');
       const t = sessions.filter(s => s.date === today);
-      document.getElementById('statTL83').textContent = t.filter(s=>s.light==='TL83').reduce((a,b)=>a+b.minutes,0);
+      document.getElementById('statTL84').textContent = t.filter(s=>s.light==='TL84').reduce((a,b)=>a+b.minutes,0);
       document.getElementById('statD65').textContent = t.filter(s=>s.light==='D65').reduce((a,b)=>a+b.minutes,0);
     }
 
@@ -423,7 +423,7 @@
       document.getElementById('stepSelect').classList.add('hidden');
       document.getElementById('stepTracking').classList.remove('hidden');
       const badge = document.getElementById('lightBadge');
-      if (light==='TL83') { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700'; badge.textContent='TL83 · Warm White'; }
+      if (light==='TL84') { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700'; badge.textContent='TL84 · Warm White'; }
       else { badge.className='px-3 py-1 rounded-full text-sm font-semibold bg-sky-100 text-sky-700'; badge.textContent='D65 · Daylight'; }
       document.getElementById('remainInfo').textContent = 'Còn lại: ' + remaining(light).toLocaleString('vi-VN') + ' phút';
       resetTrackingUI();
@@ -532,7 +532,7 @@
       const t = sessions.filter(s=>s.date===today).reverse();
       list.innerHTML = t.length ? t.map(s=>`
         <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center">
-          <div><div class="font-semibold ${s.light==='TL83'?'text-amber-600':'text-sky-600'}">${s.light}</div>
+          <div><div class="font-semibold ${s.light==='TL84'?'text-amber-600':'text-sky-600'}">${s.light}</div>
           <div class="text-sm text-slate-500">${s.start} → ${s.end}</div></div>
           <div class="text-right"><div class="font-bold text-lg">${s.minutes}'</div><div class="text-xs text-slate-400">phút</div></div>
         </div>`).join('') : '<div class="text-center text-slate-400 py-10">Chưa có phiên nào hôm nay</div>';
@@ -566,18 +566,18 @@
       if (document.getElementById('adminPass').value !== ADMIN_PASS) { showToast('Sai mật khẩu'); return; }
       document.getElementById('adminLogin').classList.add('hidden');
       document.getElementById('adminContent').classList.remove('hidden');
-      document.getElementById('lifeTL83').value = config.life.TL83;
+      document.getElementById('lifeTL84').value = config.life.TL84;
       document.getElementById('lifeD65').value = config.life.D65;
-      document.getElementById('usedTL83').textContent = (config.used.TL83||0).toLocaleString('vi-VN')+' phút';
+      document.getElementById('usedTL84').textContent = (config.used.TL84||0).toLocaleString('vi-VN')+' phút';
       document.getElementById('usedD65').textContent = (config.used.D65||0).toLocaleString('vi-VN')+' phút';
-      document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
+      document.getElementById('leftTL84').textContent = remaining('TL84').toLocaleString('vi-VN')+' phút';
       document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
     }
     function saveLifespan() {
-      config.life.TL83 = parseInt(document.getElementById('lifeTL83').value)||DEFAULT_LIFE.TL83;
+      config.life.TL84 = parseInt(document.getElementById('lifeTL84').value)||DEFAULT_LIFE.TL84;
       config.life.D65 = parseInt(document.getElementById('lifeD65').value)||DEFAULT_LIFE.D65;
       saveConfig(); updateRemainDisplay(); updateHomeRemain();
-      document.getElementById('leftTL83').textContent = remaining('TL83').toLocaleString('vi-VN')+' phút';
+      document.getElementById('leftTL84').textContent = remaining('TL84').toLocaleString('vi-VN')+' phút';
       document.getElementById('leftD65').textContent = remaining('D65').toLocaleString('vi-VN')+' phút';
       showToast('Đã lưu tuổi thọ');
     }
