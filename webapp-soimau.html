@@ -1,3 +1,18 @@
+
+
+Chuyển đến nội dung
+Sử dụng Gmail bằng trình đọc màn hình
+1 trong tổng số 91
+(không có chủ đề)
+Hộp thư đến
+
+Kho Phụ Liệu TP <khophulieutp@gmail.com>
+Tệp đính kèm
+08:11 (0 phút trước)
+đến tôi
+
+ 2 tệp đính kèm
+  •  Do Gmail quét
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -108,7 +123,7 @@
 
     <section id="tabHome" class="hidden space-y-4">
       <div class="text-center mb-2"><h2 class="text-xl font-bold text-primary">Trang chủ</h2></div>
-      <button id="btnSync" onclick="syncFromServer(false)" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition"><span class="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-2xl" aria-hidden="true">↻</span><span class="flex-1 text-left"><span class="block font-semibold">Đồng bộ dữ liệu</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+      <button id="btnSync" onclick="syncData()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition"><span class="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-2xl" aria-hidden="true">↻</span><span class="flex-1 text-left"><span class="block font-semibold">Đồng bộ dữ liệu</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
       <a href="https://docs.google.com/spreadsheets/u/0/d/1vhTIcq7FNv5HjFdAcuc0oaqs7Z57tu2A1xLlDdHSdPU/htmlview#gid=0" target="_blank" rel="noopener noreferrer" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4"><span class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl" aria-hidden="true">↗</span><span class="flex-1 text-left"><span class="block font-semibold">Xem chi tiết lịch sử</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></a>
       <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm text-left"><span class="block font-semibold">Lịch sử trên máy</span></button>
       <div class="bg-white rounded-2xl p-4 shadow-sm"><div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div><div class="space-y-2"><div class="flex justify-between"><span class="text-sm font-medium text-amber-700">L30-8</span><span id="homeRemainTL84" class="text-sm font-semibold">--</span></div><div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div></div></div>
@@ -414,9 +429,9 @@
       } finally { saving = false; $('btnSaveSession').disabled = false; }
     }
 
-    function payloadFor(record) {
+    function payloadFor(record, retry = false) {
       const { delivery, ...payload } = record;
-      return { ...payload, note: '' };
+      return { ...payload, note: '', ...(retry ? { retry: true } : {}) };
     }
     function recordKey(record) {
       if (record.sessionId) return 'session:' + record.sessionId + ':' + record.light;
@@ -438,12 +453,27 @@
         const match = data.confirmedRecords.find(saved => {
           if (saved.recordId !== recordKey(record) || saved.light !== record.light || !Number.isFinite(Number(saved.minutes))) return false;
           const exactMatch = Math.abs(Number(saved.minutes) - record.minutes) < 1e-9;
-          const legacyRounded = Number(saved.minutes) === Math.max(1, Math.round(record.minutes)) || (!Number.isInteger(record.minutes) && Number(saved.minutes) === Math.round(record.minutes));
-          return exactMatch || legacyRounded;
+          const exactMinutes = Number.isFinite(record.durationMs) && record.durationMs > 0 ? record.durationMs / 60000 : record.minutes;
+          const legacyMatch = Math.abs(Number(saved.minutes) - exactMinutes) < 1e-9 || Number(saved.minutes) === Math.max(1, Math.round(exactMinutes)) || Number(saved.minutes) === Math.round(exactMinutes);
+          return exactMatch || legacyMatch;
         });
         if (match) { record.minutes = Number(match.minutes); record.delivery = 'confirmed'; }
       }
       updateTodayStats();
+    }
+    function unconfirmedRecords() { return sessions.filter(record => record.delivery && record.delivery !== 'confirmed'); }
+    async function checkServerRecords(records = [], requireRetrySupport = false) {
+      let data = null;
+      for (let offset = 0; offset < Math.max(1, records.length); offset += 20) {
+        const batch = records.slice(offset, offset + 20);
+        data = await readServerSnapshot(batch);
+        acknowledgeRecords(data, batch); writeState();
+        if (requireRetrySupport && batch.some(record => record.delivery !== 'confirmed') &&
+            (data.apiVersion !== 2 || data.syncVersion !== 1 || !Array.isArray(data.confirmedRecords))) {
+          throw new Error('Máy chủ chưa hỗ trợ gửi lại phiên. Cần cập nhật Apps Script.');
+        }
+      }
+      return data;
     }
     async function fetchWithTimeout(url, options = {}) {
       const controller = new AbortController();
@@ -451,27 +481,82 @@
       try { return await fetch(url, { ...options, signal: controller.signal }); }
       finally { clearTimeout(timeout); }
     }
+    async function sendRecord(record, retry = false) {
+      if (record.delivery === 'confirmed') return;
+      record.delivery = 'sending'; writeState();
+      try {
+        await fetchWithTimeout(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadFor(record, retry)) });
+        record.delivery = 'sent-unverified';
+      } catch (error) {
+        record.delivery = 'unknown'; console.error('Chưa xác nhận gửi dữ liệu:', error);
+      } finally { writeState(); }
+    }
     function queueUploads(records) {
       pendingRequests += records.length;
-      uploadQueue = uploadQueue.then(async () => {
+      uploadQueue = uploadQueue.catch(error => console.error('Lỗi lần gửi trước:', error)).then(async () => {
         for (const record of records) {
-          record.delivery = 'sending'; writeState();
-          try {
-            await fetchWithTimeout(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadFor(record)) });
-            record.delivery = 'sent-unverified';
-          } catch (error) {
-            record.delivery = 'unknown'; console.error('Chưa xác nhận gửi dữ liệu:', error);
-          } finally { pendingRequests--; writeState(); }
+          try { await sendRecord(record); }
+          finally { pendingRequests--; }
         }
         const revisionBeforeCheck = usageRevision;
         let snapshot = null;
         try {
-          snapshot = await readServerSnapshot(records);
-          acknowledgeRecords(snapshot, records); writeState();
+          snapshot = await checkServerRecords(records);
         } catch (error) { console.error('Chưa xác nhận bản ghi:', error); }
         if (snapshot) await syncFromServer(true, { data: snapshot, revision: revisionBeforeCheck });
         const confirmed = records.filter(r => r.delivery === 'confirmed').length;
         showToast(confirmed === records.length ? 'Đã lưu trên hệ thống' : confirmed ? 'Đã lưu ' + confirmed + '/' + records.length + ' bản ghi lên hệ thống' : 'Đã lưu trên máy · Chưa đồng bộ');
+      });
+      return uploadQueue;
+    }
+    function applyServerSnapshot(data, revisionAtStart) {
+      const nextConfig = { life: {}, used: {} };
+      for (const light of LIGHTS) {
+        const used = Number(data[light]?.used), remain = Number(data[light]?.remain);
+        if (!finiteNonnegative(used) || !finiteNonnegative(remain)) throw new Error('Số liệu ' + lightName(light) + ' không hợp lệ');
+        nextConfig.used[light] = used;
+        const life = data[light]?.life === undefined ? used + remain : Number(data[light].life);
+        if (!finiteNonnegative(life)) throw new Error('Tuổi thọ ' + lightName(light) + ' không hợp lệ');
+        nextConfig.life[light] = life;
+      }
+      if (Array.isArray(data.users)) {
+        allowedUsers = data.users.filter(u => typeof u === 'string' && u.trim());
+        try { localStorage.setItem('allowedUsers', JSON.stringify(allowedUsers)); } catch (_) {  }
+        updateObserverOptions();
+      }
+      if (revisionAtStart !== usageRevision || pendingRequests) return 'Dữ liệu vừa thay đổi';
+      if (unconfirmedRecords().length && LIGHTS.some(l => nextConfig.used[l] < config.used[l] - 1e-9)) return 'Còn dữ liệu chưa đồng bộ';
+      if (!writeState(sessions, nextConfig, workSession)) return 'Không lưu được dữ liệu trên máy';
+      config = nextConfig; renderAll();
+      return '';
+    }
+    function syncData() {
+      if (syncing) return uploadQueue;
+      if (pendingRequests) { showToast('Đang lưu phiên…'); return uploadQueue; }
+      syncing = true; $('btnSync').disabled = true;
+      showToast('Đang đồng bộ…');
+      uploadQueue = uploadQueue.catch(error => console.error('Lỗi lần gửi trước:', error)).then(async () => {
+        const revisionAtStart = usageRevision;
+        const outstanding = unconfirmedRecords();
+        try {
+          let data = await checkServerRecords(outstanding, true);
+          const retries = outstanding.filter(record => record.delivery !== 'confirmed');
+          if (retries.length) {
+            showToast('Đang gửi ' + retries.length + ' bản ghi…');
+            pendingRequests += retries.length;
+            for (const record of retries) {
+              try { await sendRecord(record, true); }
+              finally { pendingRequests--; }
+            }
+            data = await checkServerRecords(outstanding, true);
+          }
+          const message = applyServerSnapshot(data, revisionAtStart);
+          const remainingCount = unconfirmedRecords().length;
+          showToast(remainingCount ? 'Còn ' + remainingCount + ' bản ghi chưa đồng bộ' : message || 'Đã đồng bộ Google Sheets');
+        } catch (error) {
+          console.error('Không đồng bộ được:', error);
+          showToast(['TypeError', 'AbortError'].includes(error.name) ? 'Chưa kết nối được Google Sheets' : error.message || 'Chưa đồng bộ được');
+        } finally { syncing = false; $('btnSync').disabled = false; }
       });
       return uploadQueue;
     }
@@ -482,35 +567,11 @@
       const revisionAtStart = observed ? observed.revision : usageRevision;
       if (!isSilent) showToast('Đang tải dữ liệu từ hệ thống…');
       try {
-        const outstanding = sessions.filter(s => s.delivery && s.delivery !== 'confirmed').slice(-20);
-        const data = observed ? observed.data : await readServerSnapshot(outstanding);
+        const data = observed ? observed.data : await checkServerRecords(unconfirmedRecords());
         acknowledgeRecords(data);
         writeState();
-        const nextConfig = { life: {}, used: {} };
-        for (const light of LIGHTS) {
-          const used = Number(data[light]?.used), remain = Number(data[light]?.remain);
-          if (!finiteNonnegative(used) || !finiteNonnegative(remain)) throw new Error('Số liệu ' + lightName(light) + ' không hợp lệ');
-          nextConfig.used[light] = used;
-          const life = data[light]?.life === undefined ? used + remain : Number(data[light].life);
-          if (!finiteNonnegative(life)) throw new Error('Tuổi thọ ' + lightName(light) + ' không hợp lệ');
-          nextConfig.life[light] = life;
-        }
-        if (Array.isArray(data.users)) {
-          allowedUsers = data.users.filter(u => typeof u === 'string' && u.trim());
-          try { localStorage.setItem('allowedUsers', JSON.stringify(allowedUsers)); } catch (_) {  }
-          updateObserverOptions();
-        }
-        if (revisionAtStart !== usageRevision || pendingRequests) { if (!isSilent) showToast('Dữ liệu vừa thay đổi'); return; }
-        const unverified = sessions.some(s => s.delivery && s.delivery !== 'confirmed');
-        if (unverified && LIGHTS.some(l => nextConfig.used[l] < config.used[l] - 1e-9)) {
-          if (!isSilent) showToast('Còn dữ liệu chưa đồng bộ');
-          return;
-        }
-        if (!writeState(sessions, nextConfig, workSession)) return;
-        config = nextConfig; renderAll();
-        if (!isSilent) {
-          showToast('Đã đồng bộ số liệu!');
-        }
+        const message = applyServerSnapshot(data, revisionAtStart);
+        if (!isSilent) showToast(message || 'Đã đồng bộ số liệu!');
       } catch (error) {
         console.error('Không đồng bộ được:', error);
         if (!isSilent) showToast('Chưa đồng bộ được');
@@ -570,3 +631,5 @@
   </script>
 </body>
 </html>
+index.html
+Hiển thị index.html.
