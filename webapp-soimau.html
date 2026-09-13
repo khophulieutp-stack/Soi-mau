@@ -415,7 +415,7 @@
         $('switch' + light).setAttribute('aria-pressed', String(active || selected));
         $('switch' + light).disabled = stopped;
         $('sessionTime' + light).textContent = stopped ? formatMinutes(minutesOf(ms)) + ' phút' : formatDuration(ms);
-        const status = active ? 'ĐANG CHẠY' : stopped && ms > 0 ? 'Đã tắt' : ms > 0 ? 'Tạm dừng' : selected ? 'Đang chọn' : 'Chưa sử dụng';
+        const status = active ? 'ĐANG MỞ' : stopped && ms > 0 ? 'Đã tắt' : ms > 0 ? 'Tạm dừng' : selected ? 'Đang chọn' : 'Chưa sử dụng';
         $('sessionStatus' + light).textContent = status;
         $('sessionStatus' + light).className = 'block text-sm mt-2 ' + (active ? 'text-green-700 font-semibold' : 'text-slate-500');
       }
