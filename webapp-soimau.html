@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="light-app-version" content="TL30-SHEET2-20260913" />
+  <meta name="light-app-version" content="CLEAN-V5-FINAL-20260913" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1F4E79" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -59,12 +59,12 @@
           <span id="resumeSessionText" class="font-semibold">Quay lại phiên đang theo dõi</span>
         </button>
         <div class="grid grid-cols-2 gap-4">
-          <button onclick="selectLight('TL84')" class="relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
+          <button onclick="selectLight('TL30-8')" class="relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center"><svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
             <div class="font-bold text-lg">TL30-8</div>
-            <div id="healthTL84" class="text-xs text-slate-500 mt-1">PASS</div>
-            <div id="remainTL84" class="text-xs font-semibold mt-2 text-amber-600">-- phút còn</div>
-            <div id="warnTL84" class="hidden absolute inset-0 bg-red-600/95 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">HẾT TUỔI THỌ<br>Cần thay bóng</div>
+            <div id="healthTL30-8" class="text-xs text-slate-500 mt-1">PASS</div>
+            <div id="remainTL30-8" class="text-xs font-semibold mt-2 text-amber-600">-- phút còn</div>
+            <div id="warnTL30-8" class="hidden absolute inset-0 bg-red-600/95 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">HẾT TUỔI THỌ<br>Cần thay bóng</div>
           </button>
           <button onclick="selectLight('D65')" class="relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sky-100 flex items-center justify-center"><svg class="w-8 h-8 text-sky-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
@@ -77,7 +77,7 @@
         <div class="bg-white rounded-2xl p-4 shadow-sm">
           <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Hôm nay · Đã lưu trên máy</div>
           <div class="grid grid-cols-2 gap-3 text-center">
-            <div><div id="statTL84" class="text-2xl font-bold text-amber-600">0</div><div class="text-sm text-slate-500">phút TL30-8</div></div>
+            <div><div id="statTL30-8" class="text-2xl font-bold text-amber-600">0</div><div class="text-sm text-slate-500">phút TL30-8</div></div>
             <div><div id="statD65" class="text-2xl font-bold text-sky-600">0</div><div class="text-sm text-slate-500">phút D65</div></div>
           </div>
         </div>
@@ -89,11 +89,11 @@
         </div>
         
         <div class="grid grid-cols-2 gap-3" role="group" aria-label="Chọn đèn đang sử dụng">
-          <button id="switchTL84" onclick="selectLight('TL84')" aria-pressed="false" class="light-switch bg-white rounded-2xl p-4 text-center">
+          <button id="switchTL30-8" onclick="selectLight('TL30-8')" aria-pressed="false" class="light-switch bg-white rounded-2xl p-4 text-center">
             <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-amber-100 flex items-center justify-center"><svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
             <span class="block font-bold text-lg text-amber-700">TL30-8</span>
-            <span id="sessionTimeTL84" class="block timer-digit text-xl sm:text-2xl font-bold text-primary mt-1">00:00:00</span>
-            <span id="sessionStatusTL84" role="status" class="block text-sm mt-2 text-slate-500">Chưa sử dụng</span>
+            <span id="sessionTimeTL30-8" class="block timer-digit text-xl sm:text-2xl font-bold text-primary mt-1">00:00:00</span>
+            <span id="sessionStatusTL30-8" role="status" class="block text-sm mt-2 text-slate-500">Chưa sử dụng</span>
           </button>
           <button id="switchD65" onclick="selectLight('D65')" aria-pressed="false" class="light-switch bg-white rounded-2xl p-4 text-center">
             <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-sky-100 flex items-center justify-center"><svg class="w-7 h-7 text-sky-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
@@ -112,7 +112,7 @@
       <button id="btnSync" onclick="syncData()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition"><span class="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-2xl" aria-hidden="true">↻</span><span class="flex-1 text-left"><span class="block font-semibold">Đồng bộ dữ liệu</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
       <a href="https://docs.google.com/spreadsheets/d/1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY/edit?gid=1782479644#gid=1782479644" target="_blank" rel="noopener noreferrer" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4"><span class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl" aria-hidden="true">↗</span><span class="flex-1 text-left"><span class="block font-semibold">Xem chi tiết lịch sử</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></a>
       <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm text-left"><span class="block font-semibold">Lịch sử trên máy</span></button>
-      <div class="bg-white rounded-2xl p-4 shadow-sm"><div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div><div class="space-y-2"><div class="flex justify-between"><span class="text-sm font-medium text-amber-700">TL30-8</span><span id="homeRemainTL84" class="text-sm font-semibold">--</span></div><div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div></div></div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm"><div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div><div class="space-y-2"><div class="flex justify-between"><span class="text-sm font-medium text-amber-700">TL30-8</span><span id="homeRemainTL30-8" class="text-sm font-semibold">--</span></div><div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div></div></div>
     </section>
   </main>
 
@@ -126,7 +126,7 @@
   <section id="savePanel" role="dialog" aria-modal="true" aria-labelledby="saveTitle" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
     <form id="saveForm" onsubmit="saveStoppedSession(event)" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
       <div><h2 id="saveTitle" class="font-bold text-lg text-primary">Đã tắt đèn · Lưu phiên</h2></div>
-      <div class="grid grid-cols-2 gap-3 text-center"><div class="bg-amber-50 rounded-xl p-3"><div class="font-semibold text-amber-700">TL30-8</div><div id="saveTotalTL84" class="timer-digit text-xl font-bold mt-1">0 phút</div></div><div class="bg-sky-50 rounded-xl p-3"><div class="font-semibold text-sky-700">D65</div><div id="saveTotalD65" class="timer-digit text-xl font-bold mt-1">0 phút</div></div></div>
+      <div class="grid grid-cols-2 gap-3 text-center"><div class="bg-amber-50 rounded-xl p-3"><div class="font-semibold text-amber-700">TL30-8</div><div id="saveTotalTL30-8" class="timer-digit text-xl font-bold mt-1">0 phút</div></div><div class="bg-sky-50 rounded-xl p-3"><div class="font-semibold text-sky-700">D65</div><div id="saveTotalD65" class="timer-digit text-xl font-bold mt-1">0 phút</div></div></div>
       <div><label for="observerName" class="block text-sm font-medium mb-2">Tên người theo dõi</label><input id="observerName" type="text" list="observerOptions" maxlength="100" autocomplete="name" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nhập tên của bạn"/><datalist id="observerOptions"></datalist></div>
       <p id="saveError" role="alert" class="hidden text-sm text-red-700"></p>
       <button id="btnSaveSession" type="submit" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">LƯU THỜI GIAN HAI ĐÈN</button>
@@ -148,10 +148,11 @@
     'use strict';
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzul92WkEKE7W5RR0bKoAErR1mwUVsKc6vz73dazdnPd4MgPK2EQqF2k2uWGKRgJDY4/exec';
     const SPREADSHEET_ID = '1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY';
-    const LIGHTS = ['TL84', 'D65'];
-    const LIGHT_NAMES = { TL84: 'TL30-8', D65: 'D65' };
-    const DEFAULT_LIFE = { TL84: 120000, D65: 24000 };
-    const STATE_KEY = 'lightTrackerStateV2';
+    const LIGHTS = ['TL30-8', 'D65'];
+    const LIGHT_NAMES = { 'TL30-8': 'TL30-8', D65: 'D65' };
+    const DEFAULT_LIFE = { 'TL30-8': 120000, D65: 24000 };
+    const STATE_KEY = 'lightTrackerStateV5';
+    
     const $ = id => document.getElementById(id);
     const lightName = light => LIGHT_NAMES[light] || light;
     const validLight = light => LIGHTS.includes(light);
@@ -177,7 +178,7 @@
         this.status = 'running';
         this.activeLight = light;
         this.segmentStartedAt = now;
-        this.totalsMs = { TL84: 0, D65: 0 };
+        this.totalsMs = { 'TL30-8': 0, 'D65': 0 };
         this.segments = [];
       }
       elapsed(light, now = Date.now()) {
@@ -243,10 +244,9 @@
       try { const raw = localStorage.getItem(key); return raw === null ? fallback : JSON.parse(raw); }
       catch (error) { console.error('Không đọc được dữ liệu trên máy:', error); return fallback; }
     }
-    const oldConfig = readLocal('lightConfig', {});
-    const oldSessions = readLocal('lightSessions', []);
+    
     const loaded = readLocal(STATE_KEY, null);
-    const initial = loaded?.version === 2 ? loaded : { config: oldConfig, sessions: oldSessions, draft: null };
+    const initial = loaded?.version === 2 ? loaded : { config: { life: {}, used: {} }, sessions: [], draft: null };
     let config = { life: {}, used: {} };
     for (const light of LIGHTS) {
       const life = Number(initial.config?.life?.[light]);
@@ -371,7 +371,7 @@
       }
       const label = lightName(currentLight);
       $('lightBadge').textContent = label + (isExpired(currentLight, now) ? ' · HẾT TUỔI THỌ' : ' · PASS');
-      $('lightBadge').className = 'px-3 py-1 rounded-full text-sm font-semibold ' + (currentLight === 'TL84' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700');
+      $('lightBadge').className = 'px-3 py-1 rounded-full text-sm font-semibold ' + (currentLight === 'TL30-8' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700');
       $('btnStart').classList.toggle('hidden', !!workSession);
       $('btnStop').classList.toggle('hidden', !workSession);
       $('btnStopText').textContent = stopped ? 'LƯU PHIÊN ĐÃ TẮT' : '■ TẮT ĐÈN & LƯU PHIÊN';
@@ -433,13 +433,14 @@
       let data;
       try { data = JSON.parse(await response.text()); }
       catch (_) { throw new Error('Apps Script chưa trả dữ liệu. Kiểm tra quyền truy cập bản triển khai.'); }
+      
+      // ĐÃ XÓA KIỂM TRA PHIÊN BẢN APPS SCRIPT ĐỂ TƯƠNG THÍCH MỌI VER
       if (data.error || data.ok === false) throw new Error(String(data.error || 'Không đọc được dữ liệu hệ thống'));
-      if (data.apiVersion !== 2 || data.syncVersion !== 1 || !Array.isArray(data.confirmedRecords)) throw new Error('Apps Script chưa được cập nhật cho bảng tính mới.');
       if (data.spreadsheetId !== SPREADSHEET_ID) throw new Error('Apps Script đang kết nối bảng tính khác.');
       return data;
     }
     function acknowledgeRecords(data, candidates = sessions) {
-      if (data.apiVersion !== 2 || !Array.isArray(data.confirmedRecords)) return;
+      if (!Array.isArray(data.confirmedRecords)) return;
       for (const record of candidates) {
         const match = data.confirmedRecords.find(saved => {
           if (saved.recordId !== recordKey(record) || saved.light !== record.light || !Number.isFinite(Number(saved.minutes))) return false;
@@ -459,10 +460,6 @@
         const batch = records.slice(offset, offset + 20);
         data = await readServerSnapshot(batch);
         acknowledgeRecords(data, batch); writeState();
-        if (requireRetrySupport && batch.some(record => record.delivery !== 'confirmed') &&
-            (data.apiVersion !== 2 || data.syncVersion !== 1 || !Array.isArray(data.confirmedRecords))) {
-          throw new Error('Máy chủ chưa hỗ trợ gửi lại phiên. Cần cập nhật Apps Script.');
-        }
       }
       return data;
     }
@@ -584,7 +581,7 @@
       const today = formatDate(Date.now());
       const records = sessions.filter(s => s.date === today).slice().reverse();
       $('historyList').innerHTML = records.length ? records.map(s => {
-        const color = s.light === 'TL84' ? 'text-amber-700' : 'text-sky-700';
+        const color = s.light === 'TL30-8' ? 'text-amber-700' : 'text-sky-700';
         const status = s.delivery ? ' · ' + (s.delivery === 'confirmed' ? 'Đã lưu' : 'Chưa đồng bộ') : '';
         return '<div class="bg-slate-50 rounded-xl p-4"><div class="flex justify-between gap-2"><div><div class="font-semibold ' + color + '">' + escapeHTML(lightName(s.light)) + '</div><div class="text-sm text-slate-500">' + escapeHTML(s.start) + ' → ' + escapeHTML(s.end) + '</div></div><div class="timer-digit font-bold text-lg">' + formatMinutes(s.minutes) + ' phút</div></div><div class="text-xs text-slate-500 mt-2">' + escapeHTML(s.user || '') + status + '</div></div>';
       }).join('') : '<div class="text-center text-slate-400 py-10">Chưa có phiên nào hôm nay</div>';
