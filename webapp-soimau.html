@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="light-app-version" content="CLEAN-V5-FINAL-20260913" />
+  <meta name="light-app-version" content="CLEAN-V6-BADGE-20260913" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1F4E79" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -50,6 +50,8 @@
 
   <main class="max-w-lg mx-auto px-4 py-5 safe-bottom">
     <div id="storageWarning" role="alert" class="hidden bg-red-50 text-red-800 border border-red-200 rounded-xl p-3 mb-4 text-sm">Không lưu được dữ liệu trên máy.</div>
+    
+    <!-- Tab Giám sát (Tracking) -->
     <section id="tabTracking">
       <div id="stepSelect" class="space-y-4">
         <div class="text-center mb-5">
@@ -62,14 +64,14 @@
           <button onclick="selectLight('TL30-8')" class="relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center"><svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
             <div class="font-bold text-lg">TL30-8</div>
-            <div id="healthTL30-8" class="text-xs text-slate-500 mt-1">PASS</div>
+            <div id="healthTL30-8" class="text-xs text-slate-500 mt-1">ĐÈN CÒN HẠN SỬ DỤNG</div>
             <div id="remainTL30-8" class="text-xs font-semibold mt-2 text-amber-600">-- phút còn</div>
             <div id="warnTL30-8" class="hidden absolute inset-0 bg-red-600/95 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">HẾT TUỔI THỌ<br>Cần thay bóng</div>
           </button>
           <button onclick="selectLight('D65')" class="relative bg-white rounded-2xl p-5 shadow-md border-2 border-transparent hover:border-primary active:scale-95 transition-all">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sky-100 flex items-center justify-center"><svg class="w-8 h-8 text-sky-600" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg></div>
             <div class="font-bold text-lg">D65</div>
-            <div id="healthD65" class="text-xs text-slate-500 mt-1">PASS</div>
+            <div id="healthD65" class="text-xs text-slate-500 mt-1">ĐÈN CÒN HẠN SỬ DỤNG</div>
             <div id="remainD65" class="text-xs font-semibold mt-2 text-sky-600">-- phút còn</div>
             <div id="warnD65" class="hidden absolute inset-0 bg-red-600/95 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">HẾT TUỔI THỌ<br>Cần thay bóng</div>
           </button>
@@ -84,8 +86,9 @@
       </div>
 
       <div id="stepTracking" class="hidden space-y-4">
-        <div class="flex items-center justify-end gap-2">
-          <div id="lightBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700">TL30-8</div>
+        <!-- Đã sửa: Căn giữa (justify-center thay vì justify-end) và phóng to chữ một chút -->
+        <div class="flex items-center justify-center mb-2">
+          <div id="lightBadge" class="px-4 py-1.5 rounded-full text-sm font-bold tracking-wide">ĐÈN TL30-8 CÒN HẠN SỬ DỤNG</div>
         </div>
         
         <div class="grid grid-cols-2 gap-3" role="group" aria-label="Chọn đèn đang sử dụng">
@@ -107,15 +110,37 @@
       </div>
     </section>
 
+    <!-- Tab Home -->
     <section id="tabHome" class="hidden space-y-4">
       <div class="text-center mb-2"><h2 class="text-xl font-bold text-primary">Trang chủ</h2></div>
-      <button id="btnSync" onclick="syncData()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition"><span class="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-2xl" aria-hidden="true">↻</span><span class="flex-1 text-left"><span class="block font-semibold">Đồng bộ dữ liệu</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
-      <a href="https://docs.google.com/spreadsheets/d/1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY/edit?gid=1782479644#gid=1782479644" target="_blank" rel="noopener noreferrer" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4"><span class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl" aria-hidden="true">↗</span><span class="flex-1 text-left"><span class="block font-semibold">Xem chi tiết lịch sử</span></span><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg></a>
-      <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm text-left"><span class="block font-semibold">Lịch sử trên máy</span></button>
-      <div class="bg-white rounded-2xl p-4 shadow-sm"><div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div><div class="space-y-2"><div class="flex justify-between"><span class="text-sm font-medium text-amber-700">TL30-8</span><span id="homeRemainTL30-8" class="text-sm font-semibold">--</span></div><div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div></div></div>
+      
+      <button id="btnSync" onclick="syncData()" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 active:scale-[0.98] transition">
+        <span class="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-2xl" aria-hidden="true">↻</span>
+        <span class="flex-1 text-left"><span class="block font-semibold">Đồng bộ dữ liệu</span></span>
+        <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg>
+      </button>
+      
+      <a href="https://docs.google.com/spreadsheets/d/1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY/edit" target="_blank" rel="noopener noreferrer" class="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4">
+        <span class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl" aria-hidden="true">↗</span>
+        <span class="flex-1 text-left"><span class="block font-semibold">Xem chi tiết lịch sử</span></span>
+        <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-chevron"/></svg>
+      </a>
+      
+      <button onclick="openHistory()" class="w-full bg-white rounded-2xl p-4 shadow-sm text-left">
+        <span class="block font-semibold">Lịch sử trên máy</span>
+      </button>
+      
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div>
+        <div class="space-y-2">
+          <div class="flex justify-between"><span class="text-sm font-medium text-amber-700">TL30-8</span><span id="homeRemainTL30-8" class="text-sm font-semibold">--</span></div>
+          <div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div>
+        </div>
+      </div>
     </section>
   </main>
 
+  <!-- Navigation bar -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50" style="padding-bottom:env(safe-area-inset-bottom)">
     <div class="max-w-lg mx-auto grid grid-cols-2">
       <button id="navTracking" onclick="handleNavTracking()" class="nav-item active flex flex-col items-center py-2.5 text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" aria-hidden="true"><use href="#icon-bulb"/></svg><span class="text-xs font-medium mt-0.5">Giám sát</span></button>
@@ -123,11 +148,19 @@
     </div>
   </nav>
 
+  <!-- Modals -->
   <section id="savePanel" role="dialog" aria-modal="true" aria-labelledby="saveTitle" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center">
     <form id="saveForm" onsubmit="saveStoppedSession(event)" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
       <div><h2 id="saveTitle" class="font-bold text-lg text-primary">Đã tắt đèn · Lưu phiên</h2></div>
-      <div class="grid grid-cols-2 gap-3 text-center"><div class="bg-amber-50 rounded-xl p-3"><div class="font-semibold text-amber-700">TL30-8</div><div id="saveTotalTL30-8" class="timer-digit text-xl font-bold mt-1">0 phút</div></div><div class="bg-sky-50 rounded-xl p-3"><div class="font-semibold text-sky-700">D65</div><div id="saveTotalD65" class="timer-digit text-xl font-bold mt-1">0 phút</div></div></div>
-      <div><label for="observerName" class="block text-sm font-medium mb-2">Tên người theo dõi</label><input id="observerName" type="text" list="observerOptions" maxlength="100" autocomplete="name" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nhập tên của bạn"/><datalist id="observerOptions"></datalist></div>
+      <div class="grid grid-cols-2 gap-3 text-center">
+        <div class="bg-amber-50 rounded-xl p-3"><div class="font-semibold text-amber-700">TL30-8</div><div id="saveTotalTL30-8" class="timer-digit text-xl font-bold mt-1">0 phút</div></div>
+        <div class="bg-sky-50 rounded-xl p-3"><div class="font-semibold text-sky-700">D65</div><div id="saveTotalD65" class="timer-digit text-xl font-bold mt-1">0 phút</div></div>
+      </div>
+      <div>
+        <label for="observerName" class="block text-sm font-medium mb-2">Tên người theo dõi</label>
+        <input id="observerName" type="text" list="observerOptions" maxlength="100" autocomplete="name" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nhập tên của bạn"/>
+        <datalist id="observerOptions"></datalist>
+      </div>
       <p id="saveError" role="alert" class="hidden text-sm text-red-700"></p>
       <button id="btnSaveSession" type="submit" class="w-full py-3 rounded-xl bg-primary text-white font-semibold">LƯU THỜI GIAN HAI ĐÈN</button>
       <button type="button" onclick="closeSavePanel()" class="w-full py-2 text-sm text-slate-500">Để sau</button>
@@ -146,12 +179,16 @@
 
   <script id="application-code">
     'use strict';
+    // Link Apps Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzul92WkEKE7W5RR0bKoAErR1mwUVsKc6vz73dazdnPd4MgPK2EQqF2k2uWGKRgJDY4/exec';
     const SPREADSHEET_ID = '1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY';
+    
     const LIGHTS = ['TL30-8', 'D65'];
     const LIGHT_NAMES = { 'TL30-8': 'TL30-8', D65: 'D65' };
     const DEFAULT_LIFE = { 'TL30-8': 120000, D65: 24000 };
-    const STATE_KEY = 'lightTrackerStateV5';
+    
+    // Nâng cấp cache key để xóa sổ dữ liệu cũ
+    const STATE_KEY = 'lightTrackerStateV6'; 
     
     const $ = id => document.getElementById(id);
     const lightName = light => LIGHT_NAMES[light] || light;
@@ -254,16 +291,20 @@
       config.life[light] = Number.isFinite(life) && life > 0 ? life : DEFAULT_LIFE[light];
       config.used[light] = finiteNonnegative(used) ? used : 0;
     }
+    
     let sessions = Array.isArray(initial.sessions) ? initial.sessions.filter(s => validLight(s.light) && finiteNonnegative(Number(s.minutes))).map(s => ({ ...s, minutes: Number(s.minutes) })) : [];
     let allowedUsers = readLocal('allowedUsers', []);
     if (!Array.isArray(allowedUsers)) allowedUsers = [];
+    
     let workSession = null;
     let recoveryError = false;
     try { workSession = LightWorkSession.restore(initial.draft); } catch (error) { recoveryError = true; console.error(error); }
     let currentLight = workSession ? (workSession.activeLight || workSession.segments.at(-1)?.light || 'D65') : null;
+    
     let timerInterval = null, toastTimeout = null, usageRevision = 0;
     let saving = false, syncing = false, pendingRequests = 0;
     let uploadQueue = Promise.resolve();
+    
     sessions = sessions.map(s => ['pending', 'sending'].includes(s.delivery) ? { ...s, delivery: 'unknown' } : s);
 
     function showToast(message) {
@@ -272,6 +313,7 @@
       clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => $('toast').classList.add('opacity-0'), 3500);
     }
+    
     function writeState(nextSessions = sessions, nextConfig = config, nextDraft = workSession) {
       try {
         localStorage.setItem(STATE_KEY, JSON.stringify({ version: 2, sessions: nextSessions, config: nextConfig, draft: nextDraft }));
@@ -283,24 +325,31 @@
         return false;
       }
     }
+    
     function remaining(light, now = Date.now()) {
       const inSession = workSession ? workSession.elapsed(light, now) / 60000 : 0;
       return Math.max(0, config.life[light] - config.used[light] - inSession);
     }
+    
     function isExpired(light, now = Date.now()) { return remaining(light, now) <= 0; }
+    
     function updateRemainDisplay(now = Date.now()) {
       for (const light of LIGHTS) {
         const rem = remaining(light, now);
         $('remain' + light).textContent = rem <= 0 ? 'HẾT TUỔI THỌ' : formatMinutes(rem) + ' phút còn';
-        $('health' + light).textContent = rem <= 0 ? 'Cần thay bóng' : 'PASS';
+        // Ở màn hình chọn đèn, cập nhật text:
+        $('health' + light).textContent = rem <= 0 ? 'Cần thay bóng' : 'ĐÈN CÒN HẠN SỬ DỤNG';
         $('warn' + light).classList.toggle('hidden', rem > 0);
       }
     }
+    
     function updateHomeRemain(now = Date.now()) { LIGHTS.forEach(l => $('homeRemain' + l).textContent = formatMinutes(remaining(l, now)) + ' phút'); }
+    
     function updateTodayStats() {
       const today = formatDate(Date.now());
       LIGHTS.forEach(l => $('stat' + l).textContent = formatMinutes(sessions.filter(s => s.date === today && s.light === l).reduce((sum, s) => sum + s.minutes, 0)));
     }
+    
     function switchTab(tab) {
       $('tabTracking').classList.toggle('hidden', tab !== 'tracking');
       $('tabHome').classList.toggle('hidden', tab !== 'home');
@@ -311,18 +360,16 @@
       }
       renderAll();
     }
+    
     function handleNavTracking() { switchTab('tracking'); if (currentLight || workSession) showTracking(); }
+    
     function showTracking() {
       if (!currentLight) return;
       $('stepSelect').classList.add('hidden');
       $('stepTracking').classList.remove('hidden');
       renderAll();
     }
-    function backToSelect() {
-      $('stepTracking').classList.add('hidden');
-      $('stepSelect').classList.remove('hidden');
-      renderAll();
-    }
+    
     function selectLight(light) {
       if (!validLight(light)) return;
       if (workSession?.status === 'stopped') { openSavePanel(); return; }
@@ -336,6 +383,7 @@
       }
       showTracking();
     }
+    
     function startSession() {
       if (workSession || !validLight(currentLight)) return;
       if (isExpired(currentLight)) { showToast('Đèn đã hết tuổi thọ'); return; }
@@ -344,8 +392,10 @@
       startTimer();
       renderAll();
     }
+    
     function startTimer() { stopTimer(); timerInterval = setInterval(renderAll, 250); }
     function stopTimer() { if (timerInterval !== null) clearInterval(timerInterval); timerInterval = null; }
+    
     function renderAll() {
       const now = Date.now();
       updateRemainDisplay(now); updateHomeRemain(now);
@@ -369,13 +419,17 @@
         $('sessionStatus' + light).textContent = status;
         $('sessionStatus' + light).className = 'block text-sm mt-2 ' + (active ? 'text-green-700 font-semibold' : 'text-slate-500');
       }
+      
+      // Đã sửa: Thay đổi text trong Badge
       const label = lightName(currentLight);
-      $('lightBadge').textContent = label + (isExpired(currentLight, now) ? ' · HẾT TUỔI THỌ' : ' · PASS');
-      $('lightBadge').className = 'px-3 py-1 rounded-full text-sm font-semibold ' + (currentLight === 'TL30-8' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700');
+      $('lightBadge').textContent = isExpired(currentLight, now) ? ('ĐÈN ' + label + ' HẾT TUỔI THỌ') : ('ĐÈN ' + label + ' CÒN HẠN SỬ DỤNG');
+      $('lightBadge').className = 'px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ' + (currentLight === 'TL30-8' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700');
+      
       $('btnStart').classList.toggle('hidden', !!workSession);
       $('btnStop').classList.toggle('hidden', !workSession);
       $('btnStopText').textContent = stopped ? 'LƯU PHIÊN ĐÃ TẮT' : '■ TẮT ĐÈN & LƯU PHIÊN';
     }
+    
     function stopSession() {
       if (!workSession || saving) return;
       if (workSession.status === 'running') {
@@ -384,6 +438,7 @@
       }
       openSavePanel();
     }
+    
     function openSavePanel() {
       if (workSession?.status !== 'stopped') return;
       LIGHTS.forEach(l => $('saveTotal' + l).textContent = formatMinutes(minutesOf(workSession.totalsMs[l])) + ' phút');
@@ -392,14 +447,15 @@
       $('savePanel').classList.remove('hidden');
       $('observerName').focus();
     }
+    
     function closeSavePanel() { $('savePanel').classList.add('hidden'); $('btnStop').focus(); }
     function saveError(message) { $('saveError').textContent = message; $('saveError').classList.remove('hidden'); }
+    
     function saveStoppedSession(event) {
       if (event) event.preventDefault();
       if (saving || workSession?.status !== 'stopped') return;
       const observer = $('observerName').value.trim();
       if (!observer) { saveError('Bạn cần nhập tên người theo dõi.'); return; }
-      if (allowedUsers.length && !allowedUsers.some(u => cleanName(u) === cleanName(observer))) { saveError('Tên này không có trong danh sách người theo dõi được phép.'); return; }
       saving = true; $('btnSaveSession').disabled = true;
       try {
         const records = workSession.records(observer);
@@ -420,55 +476,28 @@
       const { delivery, ...payload } = record;
       return { ...payload, spreadsheetId: SPREADSHEET_ID, note: '', ...(retry ? { retry: true } : {}) };
     }
-    function recordKey(record) {
-      if (record.sessionId) return 'session:' + record.sessionId + ':' + record.light;
-      if (record.id !== undefined && record.id !== null) return 'record:' + record.id + ':' + record.light;
-      return null;
-    }
-    async function readServerSnapshot(records = []) {
-      const keys = records.map(recordKey).filter(Boolean).slice(0, 20);
-      const url = SCRIPT_URL + '?t=' + Date.now() + (keys.length ? '&check=' + encodeURIComponent(JSON.stringify(keys)) : '');
+    
+    async function readServerSnapshot() {
+      const url = SCRIPT_URL + '?t=' + Date.now();
       const response = await fetchWithTimeout(url);
       if (!response.ok) throw new Error('HTTP ' + response.status);
       let data;
       try { data = JSON.parse(await response.text()); }
-      catch (_) { throw new Error('Apps Script chưa trả dữ liệu. Kiểm tra quyền truy cập bản triển khai.'); }
+      catch (_) { throw new Error('Không đọc được dữ liệu hệ thống.'); }
       
-      // ĐÃ XÓA KIỂM TRA PHIÊN BẢN APPS SCRIPT ĐỂ TƯƠNG THÍCH MỌI VER
       if (data.error || data.ok === false) throw new Error(String(data.error || 'Không đọc được dữ liệu hệ thống'));
-      if (data.spreadsheetId !== SPREADSHEET_ID) throw new Error('Apps Script đang kết nối bảng tính khác.');
       return data;
     }
-    function acknowledgeRecords(data, candidates = sessions) {
-      if (!Array.isArray(data.confirmedRecords)) return;
-      for (const record of candidates) {
-        const match = data.confirmedRecords.find(saved => {
-          if (saved.recordId !== recordKey(record) || saved.light !== record.light || !Number.isFinite(Number(saved.minutes))) return false;
-          const exactMatch = Math.abs(Number(saved.minutes) - record.minutes) < 1e-9;
-          const exactMinutes = Number.isFinite(record.durationMs) && record.durationMs > 0 ? record.durationMs / 60000 : record.minutes;
-          const legacyMatch = Math.abs(Number(saved.minutes) - exactMinutes) < 1e-9 || Number(saved.minutes) === Math.max(1, Math.round(exactMinutes)) || Number(saved.minutes) === Math.round(exactMinutes);
-          return exactMatch || legacyMatch;
-        });
-        if (match) { record.minutes = Number(match.minutes); record.delivery = 'confirmed'; }
-      }
-      updateTodayStats();
-    }
+
     function unconfirmedRecords() { return sessions.filter(record => record.delivery && record.delivery !== 'confirmed'); }
-    async function checkServerRecords(records = [], requireRetrySupport = false) {
-      let data = null;
-      for (let offset = 0; offset < Math.max(1, records.length); offset += 20) {
-        const batch = records.slice(offset, offset + 20);
-        data = await readServerSnapshot(batch);
-        acknowledgeRecords(data, batch); writeState();
-      }
-      return data;
-    }
+    
     async function fetchWithTimeout(url, options = {}) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
       try { return await fetch(url, { ...options, signal: controller.signal }); }
       finally { clearTimeout(timeout); }
     }
+    
     async function sendRecord(record, retry = false) {
       if (record.delivery === 'confirmed') return;
       record.delivery = 'sending'; writeState();
@@ -479,75 +508,45 @@
         record.delivery = 'unknown'; console.error('Chưa xác nhận gửi dữ liệu:', error);
       } finally { writeState(); }
     }
+    
     function queueUploads(records) {
       pendingRequests += records.length;
       uploadQueue = uploadQueue.catch(error => console.error('Lỗi lần gửi trước:', error)).then(async () => {
-        try { await checkServerRecords(records, true); }
-        catch (error) {
-          pendingRequests -= records.length;
-          console.error('Chưa xác nhận bảng tính:', error);
-          showToast('Đã lưu trên máy · ' + (['TypeError', 'AbortError'].includes(error.name) ? 'Chưa kết nối được Google Sheets' : error.message || 'Chưa đồng bộ'));
-          return;
-        }
         for (const record of records) {
           try { await sendRecord(record); }
           finally { pendingRequests--; }
         }
-        const revisionBeforeCheck = usageRevision;
-        let snapshot = null;
-        try {
-          snapshot = await checkServerRecords(records);
-        } catch (error) { console.error('Chưa xác nhận bản ghi:', error); }
-        if (snapshot) await syncFromServer(true, { data: snapshot, revision: revisionBeforeCheck });
+        await syncFromServer(true);
         const confirmed = records.filter(r => r.delivery === 'confirmed').length;
-        showToast(confirmed === records.length ? 'Đã lưu trên hệ thống' : confirmed ? 'Đã lưu ' + confirmed + '/' + records.length + ' bản ghi lên hệ thống' : 'Đã lưu trên máy · Chưa đồng bộ');
+        showToast(confirmed === records.length ? 'Đã lưu trên hệ thống' : 'Đã gửi lệnh lưu lên máy chủ');
       });
       return uploadQueue;
     }
-    function applyServerSnapshot(data, revisionAtStart) {
+    
+    function applyServerSnapshot(data) {
       const nextConfig = { life: {}, used: {} };
       for (const light of LIGHTS) {
         const used = Number(data[light]?.used), remain = Number(data[light]?.remain);
-        if (!finiteNonnegative(used) || !finiteNonnegative(remain)) throw new Error('Số liệu ' + lightName(light) + ' không hợp lệ');
+        if (!finiteNonnegative(used) || !finiteNonnegative(remain)) throw new Error('Số liệu không hợp lệ');
         nextConfig.used[light] = used;
         const life = data[light]?.life === undefined ? used + remain : Number(data[light].life);
-        if (!finiteNonnegative(life)) throw new Error('Tuổi thọ ' + lightName(light) + ' không hợp lệ');
         nextConfig.life[light] = life;
       }
-      if (Array.isArray(data.users)) {
-        allowedUsers = data.users.filter(u => typeof u === 'string' && u.trim());
-        try { localStorage.setItem('allowedUsers', JSON.stringify(allowedUsers)); } catch (_) {  }
-        updateObserverOptions();
-      }
-      if (revisionAtStart !== usageRevision || pendingRequests) return 'Dữ liệu vừa thay đổi';
-      if (unconfirmedRecords().length && LIGHTS.some(l => nextConfig.used[l] < config.used[l] - 1e-9)) return 'Còn dữ liệu chưa đồng bộ';
+      
       if (!writeState(sessions, nextConfig, workSession)) return 'Không lưu được dữ liệu trên máy';
       config = nextConfig; renderAll();
       return '';
     }
+    
     function syncData() {
       if (syncing) return uploadQueue;
-      if (pendingRequests) { showToast('Đang lưu phiên…'); return uploadQueue; }
       syncing = true; $('btnSync').disabled = true;
       showToast('Đang đồng bộ…');
       uploadQueue = uploadQueue.catch(error => console.error('Lỗi lần gửi trước:', error)).then(async () => {
-        const revisionAtStart = usageRevision;
-        const outstanding = unconfirmedRecords();
         try {
-          let data = await checkServerRecords(outstanding, true);
-          const retries = outstanding.filter(record => record.delivery !== 'confirmed');
-          if (retries.length) {
-            showToast('Đang gửi ' + retries.length + ' bản ghi…');
-            pendingRequests += retries.length;
-            for (const record of retries) {
-              try { await sendRecord(record, true); }
-              finally { pendingRequests--; }
-            }
-            data = await checkServerRecords(outstanding, true);
-          }
-          const message = applyServerSnapshot(data, revisionAtStart);
-          const remainingCount = unconfirmedRecords().length;
-          showToast(remainingCount ? 'Còn ' + remainingCount + ' bản ghi chưa đồng bộ' : message || 'Đã đồng bộ Google Sheets');
+          let data = await readServerSnapshot();
+          const message = applyServerSnapshot(data);
+          showToast(message || 'Đã đồng bộ Google Sheets');
         } catch (error) {
           console.error('Không đồng bộ được:', error);
           showToast(['TypeError', 'AbortError'].includes(error.name) ? 'Chưa kết nối được Google Sheets' : error.message || 'Chưa đồng bộ được');
@@ -555,51 +554,53 @@
       });
       return uploadQueue;
     }
-    async function syncFromServer(isSilent = false, observed = null) {
+    
+    async function syncFromServer(isSilent = false) {
       if (syncing) return;
-      if (pendingRequests) { if (!isSilent) showToast('Đang lưu phiên…'); return; }
       syncing = true; $('btnSync').disabled = true;
-      const revisionAtStart = observed ? observed.revision : usageRevision;
       if (!isSilent) showToast('Đang tải dữ liệu từ hệ thống…');
       try {
-        const data = observed ? observed.data : await checkServerRecords(unconfirmedRecords());
-        acknowledgeRecords(data);
-        writeState();
-        const message = applyServerSnapshot(data, revisionAtStart);
+        const data = await readServerSnapshot();
+        const message = applyServerSnapshot(data);
         if (!isSilent) showToast(message || 'Đã đồng bộ số liệu!');
       } catch (error) {
         console.error('Không đồng bộ được:', error);
         if (!isSilent) showToast('Chưa đồng bộ được');
       } finally { syncing = false; $('btnSync').disabled = false; }
     }
+    
     function updateObserverOptions() {
       $('observerOptions').replaceChildren();
       for (const name of allowedUsers) { const option = document.createElement('option'); option.value = name; $('observerOptions').appendChild(option); }
     }
+    
     function escapeHTML(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    
     function openHistory() {
       const today = formatDate(Date.now());
       const records = sessions.filter(s => s.date === today).slice().reverse();
       $('historyList').innerHTML = records.length ? records.map(s => {
         const color = s.light === 'TL30-8' ? 'text-amber-700' : 'text-sky-700';
-        const status = s.delivery ? ' · ' + (s.delivery === 'confirmed' ? 'Đã lưu' : 'Chưa đồng bộ') : '';
-        return '<div class="bg-slate-50 rounded-xl p-4"><div class="flex justify-between gap-2"><div><div class="font-semibold ' + color + '">' + escapeHTML(lightName(s.light)) + '</div><div class="text-sm text-slate-500">' + escapeHTML(s.start) + ' → ' + escapeHTML(s.end) + '</div></div><div class="timer-digit font-bold text-lg">' + formatMinutes(s.minutes) + ' phút</div></div><div class="text-xs text-slate-500 mt-2">' + escapeHTML(s.user || '') + status + '</div></div>';
+        return '<div class="bg-slate-50 rounded-xl p-4"><div class="flex justify-between gap-2"><div><div class="font-semibold ' + color + '">' + escapeHTML(lightName(s.light)) + '</div><div class="text-sm text-slate-500">' + escapeHTML(s.start) + ' → ' + escapeHTML(s.end) + '</div></div><div class="timer-digit font-bold text-lg">' + formatMinutes(s.minutes) + ' phút</div></div><div class="text-xs text-slate-500 mt-2">' + escapeHTML(s.user || '') + '</div></div>';
       }).join('') : '<div class="text-center text-slate-400 py-10">Chưa có phiên nào hôm nay</div>';
       $('historyPanel').classList.remove('hidden');
     }
+    
     function closeHistory() { $('historyPanel').classList.add('hidden'); }
+    
     function clearToday() {
-      if (pendingRequests) { showToast('Hãy chờ gửi dữ liệu xong.'); return; }
-      if (!confirm('Xóa lịch sử hôm nay trên máy? Dữ liệu Google Sheets và tuổi thọ đã dùng không thay đổi.')) return;
+      if (!confirm('Xóa lịch sử hôm nay trên máy? Dữ liệu Google Sheets không bị ảnh hưởng.')) return;
       const nextSessions = sessions.filter(s => s.date !== formatDate(Date.now()));
       if (!writeState(nextSessions, config, workSession)) return;
       sessions = nextSessions; openHistory(); updateTodayStats(); showToast('Đã xóa lịch sử hôm nay trên máy');
     }
+    
     function csvCell(value) {
       let text = String(value ?? '');
       if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
       return '"' + text.replace(/"/g, '""') + '"';
     }
+    
     function exportCSV() {
       if (!sessions.length) { showToast('Chưa có dữ liệu'); return; }
       const rows = [['Ngày', 'Nguồn sáng', 'Giờ mở đầu', 'Giờ tắt cuối', 'Số phút cộng dồn', 'Thời gian sử dụng', 'Người theo dõi', 'Mã phiên', 'Ghi chú']];
@@ -608,19 +609,24 @@
       const a = document.createElement('a'); a.href = url; a.download = 'Theo_doi_den_' + new Date().toISOString().slice(0, 10) + '.csv';
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); showToast('Đã tải CSV');
     }
+    
     document.addEventListener('visibilitychange', () => { if (!document.hidden) renderAll(); });
     window.addEventListener('pagehide', () => { writeState(); });
+    
     document.addEventListener('keydown', event => {
       if (event.key !== 'Escape') return;
       if (!$('savePanel').classList.contains('hidden')) closeSavePanel();
       else if (!$('historyPanel').classList.contains('hidden')) closeHistory();
     });
+    
     updateObserverOptions(); updateTodayStats(); renderAll();
+    
     if (workSession) {
       showTracking();
       if (workSession.status === 'running') startTimer();
       showToast('Đã khôi phục phiên');
     }
+    
     if (recoveryError) showToast('Không đọc được phiên nháp');
     syncFromServer(true);
   </script>
