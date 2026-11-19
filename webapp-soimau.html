@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="light-app-version" content="CLEAN-V8-SHEET-REMAIN-20261119" />
+  <meta name="light-app-version" content="CLEAN-V9-NO-RECENT-20261119" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1F4E79" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -84,17 +84,6 @@
             <div><div id="statD65" class="text-2xl font-bold text-sky-600">0</div><div class="text-sm text-slate-500">phút D65</div></div>
           </div>
         </div>
-
-        <!-- Hiển thị dòng cuối từ Google Sheets -->
-        <div class="bg-white rounded-2xl p-4 shadow-sm space-y-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ghi nhận gần nhất · Google Sheets</span>
-            <button onclick="syncData()" class="text-xs font-semibold text-primary hover:underline">↻ Làm mới</button>
-          </div>
-          <div id="lastSheetRecords" class="space-y-2 text-sm">
-            <div class="text-slate-400 text-xs text-center py-2">Đang tải dữ liệu dòng cuối...</div>
-          </div>
-        </div>
       </div>
 
       <div id="stepTracking" class="hidden space-y-4">
@@ -148,13 +137,6 @@
           <div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div>
         </div>
       </div>
-
-      <div class="bg-white rounded-2xl p-4 shadow-sm space-y-2.5">
-        <div class="text-xs font-semibold text-slate-400 uppercase">Dòng cuối trên Google Sheets</div>
-        <div id="homeLastSheetRecords" class="space-y-2 text-sm">
-          <div class="text-slate-400 text-xs text-center py-2">Chưa có dữ liệu đồng bộ</div>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -204,7 +186,7 @@
     const LIGHT_NAMES = { 'TL30-8': 'TL30-8', D65: 'D65' };
     const DEFAULT_LIFE = { 'TL30-8': 120000, D65: 24000 };
     
-    const STATE_KEY = 'lightTrackerStateV8'; 
+    const STATE_KEY = 'lightTrackerStateV9'; 
     
     const $ = id => document.getElementById(id);
     const lightName = light => LIGHT_NAMES[light] || light;
@@ -307,15 +289,14 @@
     }
     
     const loaded = readLocal(STATE_KEY, null);
-    const initial = loaded?.version === 2 ? loaded : { config: { life: {}, used: {}, remain: {}, lastRecords: {} }, sessions: [], draft: null };
+    const initial = loaded?.version === 2 ? loaded : { config: { life: {}, used: {}, remain: {} }, sessions: [], draft: null };
     let config = {
       life: { ...DEFAULT_LIFE },
       used: { 'TL30-8': 0, D65: 0 },
       remain: {
         'TL30-8': parseSheetNumber(initial.config?.remain?.['TL30-8'], DEFAULT_LIFE['TL30-8']),
         D65: parseSheetNumber(initial.config?.remain?.D65, DEFAULT_LIFE.D65)
-      },
-      lastRecords: initial.config?.lastRecords || {}
+      }
     };
     for (const light of LIGHTS) {
       const life = Number(initial.config?.life?.[light]);
@@ -358,7 +339,6 @@
       }
     }
 
-    // Lấy đúng số phút lũy kế còn lại từ cột H của Sheet (trừ thêm phần phút đang chạy trên máy nếu có)
     function remaining(light, now = Date.now()) {
       const baseRemain = Number.isFinite(Number(config.remain?.[light]))
         ? Math.max(0, Number(config.remain[light]))
@@ -383,34 +363,6 @@
     function updateTodayStats() {
       const today = formatDate(Date.now());
       LIGHTS.forEach(l => $('stat' + l).textContent = formatMinutes(sessions.filter(s => s.date === today && s.light === l).reduce((sum, s) => sum + s.minutes, 0)));
-    }
-
-    function updateLastRecordsDisplay() {
-      const html = LIGHTS.map(light => {
-        const rec = config.lastRecords?.[light];
-        const badgeColor = light === 'TL30-8' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800';
-        if (!rec) {
-          return '<div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-between text-xs text-slate-400">' +
-            '<span class="font-bold px-2 py-0.5 rounded ' + badgeColor + '">' + escapeHTML(lightName(light)) + '</span>' +
-            '<span>Chưa có dữ liệu trên Sheet</span></div>';
-        }
-        return '<div class="bg-slate-50 rounded-xl p-3 border border-slate-100">' +
-          '<div class="flex items-center justify-between mb-1">' +
-            '<div class="flex items-center gap-2">' +
-              '<span class="text-xs font-bold px-2 py-0.5 rounded ' + badgeColor + '">' + escapeHTML(lightName(light)) + '</span>' +
-              '<span class="text-xs font-semibold text-slate-600">#' + escapeHTML(rec.stt) + ' · ' + escapeHTML(rec.date) + '</span>' +
-            '</div>' +
-            '<span class="timer-digit text-xs font-bold text-primary">+' + formatMinutes(rec.minutes) + ' phút</span>' +
-          '</div>' +
-          '<div class="flex items-center justify-between text-xs text-slate-500">' +
-            '<span>' + escapeHTML(rec.start) + ' → ' + escapeHTML(rec.end) + '</span>' +
-            '<span class="font-medium text-slate-700">' + escapeHTML(rec.user || 'Không rõ') + '</span>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-
-      if ($('lastSheetRecords')) $('lastSheetRecords').innerHTML = html;
-      if ($('homeLastSheetRecords')) $('homeLastSheetRecords').innerHTML = html;
     }
     
     function switchTab(tab) {
@@ -461,7 +413,7 @@
     
     function renderAll() {
       const now = Date.now();
-      updateRemainDisplay(now); updateHomeRemain(now); updateLastRecordsDisplay();
+      updateRemainDisplay(now); updateHomeRemain(now);
       $('resumeSession').classList.toggle('hidden', !workSession);
       $('resumeSessionText').textContent = workSession?.status === 'stopped' ? 'Quay lại phiên đã tắt · Chờ lưu' : 'Quay lại phiên đang theo dõi';
       window.onbeforeunload = workSession ? event => { event.preventDefault(); event.returnValue = ''; } : null;
@@ -526,21 +478,11 @@
         const nextConfig = {
           life: { ...config.life },
           used: { ...config.used },
-          remain: { ...config.remain },
-          lastRecords: { ...config.lastRecords }
+          remain: { ...config.remain }
         };
         for (const record of fresh) {
           nextConfig.used[record.light] += record.minutes;
           nextConfig.remain[record.light] = Math.max(0, Number(nextConfig.remain[record.light] ?? 0) - record.minutes);
-          nextConfig.lastRecords[record.light] = {
-            stt: (nextConfig.lastRecords[record.light]?.stt || 0) + 1,
-            date: record.date,
-            light: record.light,
-            start: record.start,
-            end: record.end,
-            minutes: record.minutes,
-            user: record.user
-          };
         }
         if (!writeState(nextSessions, nextConfig, null)) { saveError('Chưa lưu được trên máy.'); return; }
         sessions = nextSessions; config = nextConfig; workSession = null; usageRevision++;
@@ -604,8 +546,7 @@
       const nextConfig = {
         life: { ...config.life },
         used: { ...config.used },
-        remain: { ...config.remain },
-        lastRecords: {}
+        remain: { ...config.remain }
       };
       for (const light of LIGHTS) {
         const remainVal = parseSheetNumber(data[light]?.remain, NaN);
@@ -618,7 +559,6 @@
         if (Number.isFinite(Number(data[light]?.life)) && Number(data[light].life) > 0) {
           nextConfig.life[light] = Number(data[light].life);
         }
-        nextConfig.lastRecords[light] = data[light]?.lastRecord || null;
       }
       
       if (!writeState(sessions, nextConfig, workSession)) return 'Không lưu được dữ liệu trên máy';
