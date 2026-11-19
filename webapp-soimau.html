@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="light-app-version" content="CLEAN-V6-BADGE-20260913" />
+  <meta name="light-app-version" content="CLEAN-V8-SHEET-REMAIN-20261119" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1F4E79" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -76,6 +76,7 @@
             <div id="warnD65" class="hidden absolute inset-0 bg-red-600/95 rounded-2xl flex items-center justify-center text-white text-sm font-bold p-3 text-center">HẾT TUỔI THỌ<br>Cần thay bóng</div>
           </button>
         </div>
+
         <div class="bg-white rounded-2xl p-4 shadow-sm">
           <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Hôm nay · Đã lưu trên máy</div>
           <div class="grid grid-cols-2 gap-3 text-center">
@@ -83,10 +84,20 @@
             <div><div id="statD65" class="text-2xl font-bold text-sky-600">0</div><div class="text-sm text-slate-500">phút D65</div></div>
           </div>
         </div>
+
+        <!-- Hiển thị dòng cuối từ Google Sheets -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ghi nhận gần nhất · Google Sheets</span>
+            <button onclick="syncData()" class="text-xs font-semibold text-primary hover:underline">↻ Làm mới</button>
+          </div>
+          <div id="lastSheetRecords" class="space-y-2 text-sm">
+            <div class="text-slate-400 text-xs text-center py-2">Đang tải dữ liệu dòng cuối...</div>
+          </div>
+        </div>
       </div>
 
       <div id="stepTracking" class="hidden space-y-4">
-        <!-- Đã sửa: Căn giữa (justify-center thay vì justify-end) và phóng to chữ một chút -->
         <div class="flex items-center justify-center mb-2">
           <div id="lightBadge" class="px-4 py-1.5 rounded-full text-sm font-bold tracking-wide">ĐÈN TL30-8 CÒN HẠN SỬ DỤNG</div>
         </div>
@@ -131,10 +142,17 @@
       </button>
       
       <div class="bg-white rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại</div>
+        <div class="text-xs font-semibold text-slate-400 uppercase mb-3">Tuổi thọ còn lại (Lũy kế Sheet)</div>
         <div class="space-y-2">
           <div class="flex justify-between"><span class="text-sm font-medium text-amber-700">TL30-8</span><span id="homeRemainTL30-8" class="text-sm font-semibold">--</span></div>
           <div class="flex justify-between"><span class="text-sm font-medium text-sky-700">D65</span><span id="homeRemainD65" class="text-sm font-semibold">--</span></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm space-y-2.5">
+        <div class="text-xs font-semibold text-slate-400 uppercase">Dòng cuối trên Google Sheets</div>
+        <div id="homeLastSheetRecords" class="space-y-2 text-sm">
+          <div class="text-slate-400 text-xs text-center py-2">Chưa có dữ liệu đồng bộ</div>
         </div>
       </div>
     </section>
@@ -179,7 +197,6 @@
 
   <script id="application-code">
     'use strict';
-    // Link Apps Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzul92WkEKE7W5RR0bKoAErR1mwUVsKc6vz73dazdnPd4MgPK2EQqF2k2uWGKRgJDY4/exec';
     const SPREADSHEET_ID = '1p-tljJhUxA8n22WJWkvIVo6DHQtyslDKCtfH4piR6uY';
     
@@ -187,14 +204,21 @@
     const LIGHT_NAMES = { 'TL30-8': 'TL30-8', D65: 'D65' };
     const DEFAULT_LIFE = { 'TL30-8': 120000, D65: 24000 };
     
-    // Nâng cấp cache key để xóa sổ dữ liệu cũ
-    const STATE_KEY = 'lightTrackerStateV6'; 
+    const STATE_KEY = 'lightTrackerStateV8'; 
     
     const $ = id => document.getElementById(id);
     const lightName = light => LIGHT_NAMES[light] || light;
     const validLight = light => LIGHTS.includes(light);
     const finiteNonnegative = n => Number.isFinite(n) && n >= 0;
-    const cleanName = value => String(value).trim().toLocaleLowerCase('vi-VN');
+
+    function parseSheetNumber(val, fallback = 0) {
+      if (typeof val === 'number') return Number.isFinite(val) ? val : fallback;
+      let s = String(val ?? '').trim().replace(/\s+/g, '').replace(/,/g, '.');
+      if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+      const n = Number(s);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
     function formatTime(value) { return new Date(value).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }); }
     function formatDate(value) { return new Date(value).toLocaleDateString('vi-VN'); }
     function formatDuration(ms) {
@@ -202,7 +226,7 @@
       return [Math.floor(s / 3600), Math.floor(s % 3600 / 60), s % 60].map(n => String(n).padStart(2, '0')).join(':');
     }
     function minutesOf(ms) { return ms > 0 ? Math.max(1, Math.round(ms / 60000)) : 0; }
-    function formatMinutes(value) { return Number(value).toLocaleString('vi-VN', { maximumFractionDigits: 0 }); }
+    function formatMinutes(value) { return Math.round(Number(value)).toLocaleString('vi-VN', { maximumFractionDigits: 0 }); }
 
     class LightWorkSession {
       constructor(light, now = Date.now()) {
@@ -283,8 +307,16 @@
     }
     
     const loaded = readLocal(STATE_KEY, null);
-    const initial = loaded?.version === 2 ? loaded : { config: { life: {}, used: {} }, sessions: [], draft: null };
-    let config = { life: {}, used: {} };
+    const initial = loaded?.version === 2 ? loaded : { config: { life: {}, used: {}, remain: {}, lastRecords: {} }, sessions: [], draft: null };
+    let config = {
+      life: { ...DEFAULT_LIFE },
+      used: { 'TL30-8': 0, D65: 0 },
+      remain: {
+        'TL30-8': parseSheetNumber(initial.config?.remain?.['TL30-8'], DEFAULT_LIFE['TL30-8']),
+        D65: parseSheetNumber(initial.config?.remain?.D65, DEFAULT_LIFE.D65)
+      },
+      lastRecords: initial.config?.lastRecords || {}
+    };
     for (const light of LIGHTS) {
       const life = Number(initial.config?.life?.[light]);
       const used = Number(initial.config?.used?.[light]);
@@ -325,10 +357,14 @@
         return false;
       }
     }
-    
+
+    // Lấy đúng số phút lũy kế còn lại từ cột H của Sheet (trừ thêm phần phút đang chạy trên máy nếu có)
     function remaining(light, now = Date.now()) {
+      const baseRemain = Number.isFinite(Number(config.remain?.[light]))
+        ? Math.max(0, Number(config.remain[light]))
+        : Math.max(0, config.life[light] - config.used[light]);
       const inSession = workSession ? workSession.elapsed(light, now) / 60000 : 0;
-      return Math.max(0, config.life[light] - config.used[light] - inSession);
+      return Math.max(0, baseRemain - inSession);
     }
     
     function isExpired(light, now = Date.now()) { return remaining(light, now) <= 0; }
@@ -337,7 +373,6 @@
       for (const light of LIGHTS) {
         const rem = remaining(light, now);
         $('remain' + light).textContent = rem <= 0 ? 'HẾT TUỔI THỌ' : formatMinutes(rem) + ' phút còn';
-        // Ở màn hình chọn đèn, cập nhật text:
         $('health' + light).textContent = rem <= 0 ? 'Cần thay bóng' : 'ĐÈN CÒN HẠN SỬ DỤNG';
         $('warn' + light).classList.toggle('hidden', rem > 0);
       }
@@ -348,6 +383,34 @@
     function updateTodayStats() {
       const today = formatDate(Date.now());
       LIGHTS.forEach(l => $('stat' + l).textContent = formatMinutes(sessions.filter(s => s.date === today && s.light === l).reduce((sum, s) => sum + s.minutes, 0)));
+    }
+
+    function updateLastRecordsDisplay() {
+      const html = LIGHTS.map(light => {
+        const rec = config.lastRecords?.[light];
+        const badgeColor = light === 'TL30-8' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800';
+        if (!rec) {
+          return '<div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-between text-xs text-slate-400">' +
+            '<span class="font-bold px-2 py-0.5 rounded ' + badgeColor + '">' + escapeHTML(lightName(light)) + '</span>' +
+            '<span>Chưa có dữ liệu trên Sheet</span></div>';
+        }
+        return '<div class="bg-slate-50 rounded-xl p-3 border border-slate-100">' +
+          '<div class="flex items-center justify-between mb-1">' +
+            '<div class="flex items-center gap-2">' +
+              '<span class="text-xs font-bold px-2 py-0.5 rounded ' + badgeColor + '">' + escapeHTML(lightName(light)) + '</span>' +
+              '<span class="text-xs font-semibold text-slate-600">#' + escapeHTML(rec.stt) + ' · ' + escapeHTML(rec.date) + '</span>' +
+            '</div>' +
+            '<span class="timer-digit text-xs font-bold text-primary">+' + formatMinutes(rec.minutes) + ' phút</span>' +
+          '</div>' +
+          '<div class="flex items-center justify-between text-xs text-slate-500">' +
+            '<span>' + escapeHTML(rec.start) + ' → ' + escapeHTML(rec.end) + '</span>' +
+            '<span class="font-medium text-slate-700">' + escapeHTML(rec.user || 'Không rõ') + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      if ($('lastSheetRecords')) $('lastSheetRecords').innerHTML = html;
+      if ($('homeLastSheetRecords')) $('homeLastSheetRecords').innerHTML = html;
     }
     
     function switchTab(tab) {
@@ -398,7 +461,7 @@
     
     function renderAll() {
       const now = Date.now();
-      updateRemainDisplay(now); updateHomeRemain(now);
+      updateRemainDisplay(now); updateHomeRemain(now); updateLastRecordsDisplay();
       $('resumeSession').classList.toggle('hidden', !workSession);
       $('resumeSessionText').textContent = workSession?.status === 'stopped' ? 'Quay lại phiên đã tắt · Chờ lưu' : 'Quay lại phiên đang theo dõi';
       window.onbeforeunload = workSession ? event => { event.preventDefault(); event.returnValue = ''; } : null;
@@ -420,7 +483,6 @@
         $('sessionStatus' + light).className = 'block text-sm mt-2 ' + (active ? 'text-green-700 font-semibold' : 'text-slate-500');
       }
       
-      // Đã sửa: Thay đổi text trong Badge
       const label = lightName(currentLight);
       $('lightBadge').textContent = isExpired(currentLight, now) ? ('ĐÈN ' + label + ' HẾT TUỔI THỌ') : ('ĐÈN ' + label + ' CÒN HẠN SỬ DỤNG');
       $('lightBadge').className = 'px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ' + (currentLight === 'TL30-8' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700');
@@ -461,8 +523,25 @@
         const records = workSession.records(observer);
         const fresh = records.filter(r => !sessions.some(s => s.sessionId === r.sessionId && s.light === r.light));
         const nextSessions = sessions.concat(fresh);
-        const nextConfig = { life: { ...config.life }, used: { ...config.used } };
-        for (const record of fresh) nextConfig.used[record.light] += record.minutes;
+        const nextConfig = {
+          life: { ...config.life },
+          used: { ...config.used },
+          remain: { ...config.remain },
+          lastRecords: { ...config.lastRecords }
+        };
+        for (const record of fresh) {
+          nextConfig.used[record.light] += record.minutes;
+          nextConfig.remain[record.light] = Math.max(0, Number(nextConfig.remain[record.light] ?? 0) - record.minutes);
+          nextConfig.lastRecords[record.light] = {
+            stt: (nextConfig.lastRecords[record.light]?.stt || 0) + 1,
+            date: record.date,
+            light: record.light,
+            start: record.start,
+            end: record.end,
+            minutes: record.minutes,
+            user: record.user
+          };
+        }
         if (!writeState(nextSessions, nextConfig, null)) { saveError('Chưa lưu được trên máy.'); return; }
         sessions = nextSessions; config = nextConfig; workSession = null; usageRevision++;
         try { localStorage.setItem('lastObserver', observer); } catch (_) {  }
@@ -489,8 +568,6 @@
       return data;
     }
 
-    function unconfirmedRecords() { return sessions.filter(record => record.delivery && record.delivery !== 'confirmed'); }
-    
     async function fetchWithTimeout(url, options = {}) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
@@ -524,13 +601,24 @@
     }
     
     function applyServerSnapshot(data) {
-      const nextConfig = { life: {}, used: {} };
+      const nextConfig = {
+        life: { ...config.life },
+        used: { ...config.used },
+        remain: { ...config.remain },
+        lastRecords: {}
+      };
       for (const light of LIGHTS) {
-        const used = Number(data[light]?.used), remain = Number(data[light]?.remain);
-        if (!finiteNonnegative(used) || !finiteNonnegative(remain)) throw new Error('Số liệu không hợp lệ');
-        nextConfig.used[light] = used;
-        const life = data[light]?.life === undefined ? used + remain : Number(data[light].life);
-        nextConfig.life[light] = life;
+        const remainVal = parseSheetNumber(data[light]?.remain, NaN);
+        const usedVal = parseSheetNumber(data[light]?.used, 0);
+
+        if (!finiteNonnegative(remainVal)) throw new Error('Số phút còn lại không hợp lệ');
+
+        nextConfig.remain[light] = remainVal;
+        if (finiteNonnegative(usedVal)) nextConfig.used[light] = usedVal;
+        if (Number.isFinite(Number(data[light]?.life)) && Number(data[light].life) > 0) {
+          nextConfig.life[light] = Number(data[light].life);
+        }
+        nextConfig.lastRecords[light] = data[light]?.lastRecord || null;
       }
       
       if (!writeState(sessions, nextConfig, workSession)) return 'Không lưu được dữ liệu trên máy';
